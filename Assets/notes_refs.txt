@@ -1,0 +1,4 @@
+COLORS
+
+neon blue 1: 00FFC1
+neon orange: FF7800
