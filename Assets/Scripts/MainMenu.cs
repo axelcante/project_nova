@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     #region VARIABLES
-    #endregion
+    #endregion VARIABLES
 
     #region METHODS
     #region PUBLIC
@@ -17,7 +17,7 @@ public class MainMenu : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
-    #endregion
+    #endregion PUBLIC
 
     #region PRIVATE
 
@@ -27,6 +27,6 @@ public class MainMenu : MonoBehaviour
         
     }
 
-    #endregion
-    #endregion
+    #endregion PRIVATE
+    #endregion METHODS
 }
