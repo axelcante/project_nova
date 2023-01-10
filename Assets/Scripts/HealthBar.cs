@@ -20,15 +20,15 @@ public class HealthBar : MonoBehaviour
     private Coroutine _FadingText = null;
 
     // Update the max health for this health bar
-    //public void SetMaxHealth (float maxHealth) => _Slider.maxValue = maxHealth;
-    public void SetMaxHealth (float maxHealth)
-    {
-        _Slider.maxValue = maxHealth;
-    }
+    public void SetMaxHealth (float maxHealth) => _Slider.maxValue = maxHealth;
 
     // Update the current health for this health bar
     public void UpdateHealth (float health)
     {
+        if (health > _Slider.value) {   // Updating health -- need to fade the text back in
+            FadeText(true);
+        }
+
         if (health <= 0) {
             if (_AnimateHealth != null) {
                 StopCoroutine(_AnimateHealth);
@@ -72,12 +72,6 @@ public class HealthBar : MonoBehaviour
             StopCoroutine(_FadingText);
             StartCoroutine(FadeNameText(fadeIn ? 1 : 0, _textFadeSpeed));   // Fading text in
         }
-    }
-
-    // Called when this GameObject is enabled, usued to fade in text
-    private void OnEnable ()
-    {
-        FadeText(true);
     }
 
     // This is a much upgraded fading in or out coroutine, which I should really use for the rest of the project

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,9 +26,53 @@ public class GameManager : MonoBehaviour
     [Range(0f, 0.99f)]
     public float sideSpawnWeight;
 
+    [Header("Weapons")]
+    [SerializeField] private DefenseOrb[] _DefenseOrbs;
+    [SerializeField] private Complexity[] _Complexities;
+    [SerializeField] private Pulsar _Pulsar;
+    private List<Enemy> _Enemies = new List<Enemy>();
+
+    [Header("Shields")]
+    [SerializeField] private GameObject _SmallShield;
+    [SerializeField] private GameObject _LargeShield;
+
     #endregion VARIABLES
 
     #region METHODS
+    #region UNITY
+
+    // Awake is called upon instantiation
+    private void Awake ()
+    {
+        // Create singleton instance reference for other scripts to call
+        if (_instance != null) {
+            Debug.LogWarning("More than one instance of GameManager script running");
+        }
+        _instance = this;
+    }
+
+    // Update is called once per frame
+    private void Update ()
+    {
+        // DEBUG: Spawn enemies on space click (REMOVE)
+        if (Input.GetKeyDown(KeyCode.Space)) {
+            StartCoroutine(SpawnNumberOfEnemies(_numberOfEnemiesPerWave));
+        }
+
+        // DEBUG: Add DefenseOrb weapon on Q click (simulates upgrade) (REMOVE)
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            //for (int i = 0; i < _DefenseOrbs.Length; i++) {
+            //    if (!_DefenseOrbs[i].gameObject.activeSelf) {
+            //        _DefenseOrbs[i].gameObject.SetActive(true);
+            //        break;
+            //    }
+            //}
+            _DefenseOrbs[0].IncreaseLevel();
+        }
+    }
+
+    #endregion UNITY
+
     #region PUBLIC
 
     // Generates an impulse for our camera shake
@@ -50,27 +93,24 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
+    // Returns the first enemy in the list for auto-targetting
+    public Enemy GetEnemy ()
+    {
+        if (_Enemies.Count > 0)
+            return _Enemies[0];
+        else
+            return null;
+    }
+
+    // Removes a enemy from the list (when they are destroyed)
+    public void RemoveEnemy (Enemy enemy)
+    {
+        _Enemies.Remove(enemy);
+    }
+
     #endregion PUBLIC
 
     #region PRIVATE
-
-    // Awake is called upon instantiation
-    private void Awake ()
-    {
-        // Create singleton instance reference for other scripts to call
-        if (_instance != null) {
-            Debug.LogWarning("More than one instance of GameManager script running");
-        }
-        _instance = this;
-    }
-
-    // Update is called once per frame
-    private void Update ()
-    {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            StartCoroutine(SpawnNumberOfEnemies(_numberOfEnemiesPerWave));
-        }
-    }
 
     // Select a random point along the edges of a 2D Capsule Collider, just outside of camera range
     private void SpawnEnemy ()
@@ -106,8 +146,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // Create an instance of the prefab at the random position
-        Instantiate(_EnemyPrefab, spawnPosition, Quaternion.identity, _EnemyHierarchyContainer.transform);
+        // Create an instance of the prefab at the random position and add it to the list of enemies
+        GameObject enemy = Instantiate(_EnemyPrefab, spawnPosition, Quaternion.identity, _EnemyHierarchyContainer.transform);
+        _Enemies.Add(enemy.GetComponent<Enemy>());
     }
 
     // Spawn enemy waves. Used Coroutine to try and reduce computational load per frame

@@ -41,6 +41,39 @@ public class Station : MonoBehaviour
     #endregion VARIABLES
 
     #region METHODS
+    #region UNITY
+
+    // When Station is instantiated (scene load)
+    private void Awake ()
+    {
+        // Create singleton instance reference for other scripts to call
+        if (_instance != null) {
+            Debug.LogWarning("More than one instance of Station script running");
+        }
+        _instance = this;
+    }
+
+    // Before first frame
+    private void Start ()
+    {
+        _stationHQHealth = _maxStationHQHealth;
+        _HealthBar.gameObject.SetActive(true);
+        _HealthBar.SetMaxHealth(_maxStationHQHealth);
+        _HealthBar.UpdateHealth(_stationHQHealth);
+        _HealthBar.SetName("Station");
+    }
+
+    //// Update is called once per frame
+    //private void Update ()
+    //{
+    //    // DEBUG - REMOVE
+    //    if (Input.GetKeyDown(KeyCode.F)) {
+    //        StartCoroutine(StationExplode());
+    //    }
+    //}
+
+    #endregion UNITY
+
     #region PUBLIC
 
     // Return true if a specific Station Element (shields) is active or not
@@ -97,35 +130,6 @@ public class Station : MonoBehaviour
     #endregion PUBLIC
 
     #region PRIVATE
-
-    // When Station is instantiated (scene load)
-    private void Awake ()
-    {
-        // Create singleton instance reference for other scripts to call
-        if (_instance != null) {
-            Debug.LogWarning("More than one instance of Station script running");
-        }
-        _instance = this;
-    }
-
-    // Before first frame
-    private void Start ()
-    {
-        _stationHQHealth = _maxStationHQHealth;
-        _HealthBar.gameObject.SetActive(true);
-        _HealthBar.SetMaxHealth(_maxStationHQHealth);
-        _HealthBar.UpdateHealth(_stationHQHealth);
-        _HealthBar.SetName("Station");
-    }
-
-    // Update is called once per frame
-    private void Update ()
-    {
-        // DEBUG
-        if (Input.GetKeyDown(KeyCode.F)) {
-            StartCoroutine(StationExplode());
-        }
-    }
 
     // NOW I AM BECOME DEATH, THE DESTROYER OF WORLDS
     private IEnumerator StationExplode ()

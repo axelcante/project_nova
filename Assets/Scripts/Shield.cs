@@ -7,7 +7,7 @@ public class Shield : MonoBehaviour
     #region VARIABLES
 
     [SerializeField] private Station.StationElement _stationElement; // Identifier for this station element
-    private Station _Station;                       // Reference to the singleton Station.cs script
+    private Station _Station;   // Reference to the singleton Station.cs script
 
     [Header("Animations")]
     [SerializeField] private float _fadeSpeed;      // The speed at which the shield alpha fades (in or out)
@@ -31,6 +31,33 @@ public class Shield : MonoBehaviour
     #endregion VARIABLES
 
     #region METHODS
+    #region UNITY
+
+    // Called when the shield is set to active (when the player unlocks it)
+    private void Start ()
+    {
+        _isAlive = true;
+
+        // Get references to Station instance & set this shield's type
+        _Station = Station.GetInstance();
+
+        // Initialize health to maximum possible
+        _health = _maxHealth;
+
+        // Set the corresponding health bar to active
+        _HealthBar.gameObject.SetActive(true);
+        _HealthBar.SetMaxHealth(_maxHealth);
+        if (_stationElement == Station.StationElement.LargeShield)
+            _HealthBar.SetName("L. Shield");
+        else
+            _HealthBar.SetName("S. Shield");
+
+        // Update the health bar accordingly
+        _HealthBar.UpdateHealth(_health);
+    }
+
+    #endregion UNITY
+
     #region PUBLIC
 
     // Reduce current shield health by x amount
@@ -79,29 +106,6 @@ public class Shield : MonoBehaviour
 
     #region PRIVATE
 
-    // Called when the shield is set to active (when the player unlocks it)
-    private void OnEnable ()
-    {
-        _isAlive = true;
-
-        // Get references to Station instance & set this shield's type
-        _Station = Station.GetInstance();
-
-        // Initialize health to maximum possible
-        _health = _maxHealth;
-
-        // Set the corresponding health bar to active
-        _HealthBar.gameObject.SetActive(true);
-        _HealthBar.SetMaxHealth(_maxHealth);
-        if (_stationElement == Station.StationElement.LargeShield)
-            _HealthBar.SetName("L. Shield");
-        else
-            _HealthBar.SetName("S. Shield");
-
-        // Update the health bar accordingly
-        _HealthBar.UpdateHealth(_health);
-    }
-
     // When shields run out of health, call this coroutine to set a timer as they recharge
     private IEnumerator Recharge ()
     {
@@ -115,6 +119,7 @@ public class Shield : MonoBehaviour
         yield return TransitionColors(GetComponent<SpriteRenderer>().color, _ShieldAliveColor, _colorSwapSpeed);
         // 4. Recharge this shield's health
         _health = _maxHealth;
+        _HealthBar.UpdateHealth(_health);
         _isAlive = true;
     }
 

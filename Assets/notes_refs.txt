@@ -6,3 +6,4 @@ neon blue Darke: 007E5F
 neon orange: FF7800
 neon yellow 1: FFF100
 neon red 1: FF0016
+neon pink 1: FF00D9

@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 public class Enemy : MonoBehaviour
 {
@@ -40,16 +39,20 @@ public class Enemy : MonoBehaviour
     #endregion VARIABLES
 
     #region METHODS
-    #region PRIVATE
+    #region UNITY
 
     // When Enemy is instantiated
     private void Awake ()
     {
         // Apply a random speed on instantiation and calculate distance to center
         _speed = Random.Range(minSpeed, maxSpeed);
-        _distance = Vector2.Distance(transform.position, _CenterPosition);
+    }
 
+    // Just before the first frame before which the Enemy is istantiated
+    private void Start ()
+    {
         // Calculate the direction between the GameObject and the central point (i.e., the Station)
+        _distance = Vector2.Distance(transform.position, _CenterPosition);
         _Direction = _CenterPosition - new Vector2(transform.position.x, transform.position.y);
         _Direction.Normalize();
     }
@@ -63,12 +66,27 @@ public class Enemy : MonoBehaviour
         IncreaseSpeedOverDistance();
     }
 
-    // Used for physics updates (such as positional calculations)
+    // Used for physics updates (such as positional position and physics calculations)
     private void FixedUpdate ()
     {
         if (!_dontDestroy && !_isExploding)
             DestroyOnDistance();
     }
+
+    #endregion UNITY
+
+    #region PUBLIC
+
+    // Manually start this enemy's explosion sequence (if for example it is hit by a weapon)
+    public void ManualExplode ()
+    {
+        if (!_isExploding)
+            StartCoroutine(Explode());
+    }
+
+    #endregion PUBLIC
+
+    #region PRIVATE
 
     // Constantly move towards the Station's position
     private void MoveTowardsStation ()
@@ -86,9 +104,10 @@ public class Enemy : MonoBehaviour
         _speed += (gravityFactor / _distance) * Time.deltaTime;
     }
 
-    // Manual "collision" detection by checking the distance between enemy and target (center), and destroying when enemy is within specific range
+    // Manual "collision" detection by checking the distance between enemy and target (center), and destroying when enemy is within range
     private void DestroyOnDistance ()
     {
+        // Kill all enemies when game is over
         if (Station.GetInstance().GetIsNova() && !_isExploding) {
             StartCoroutine(Explode());
         }
@@ -120,6 +139,10 @@ public class Enemy : MonoBehaviour
     // Disable collision detection mechanics, launch destruction animation and destroy GameObject
     private IEnumerator Explode ()
     {
+        // Remove this enemy from the game's list of current enemies in the scene
+        GameManager.GetInstance().RemoveEnemy(this);
+
+        // Start the explosion animation
         _isFrozen = true;
         _isExploding = true;
         GetComponent<CircleCollider2D>().enabled = false;

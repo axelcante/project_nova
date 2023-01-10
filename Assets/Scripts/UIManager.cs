@@ -25,6 +25,20 @@ public class UIManager : MonoBehaviour
     #endregion VARIABLES
 
     #region METHODS
+    #region UNITY
+
+    // Called on script load
+    private void Awake ()
+    {
+        // Create singleton instance reference for other scripts to call
+        if (_instance != null) {
+            Debug.LogWarning("More than one instance of UIManager script running");
+        }
+        _instance = this;
+    }
+
+    #endregion UNITY
+
     #region PUBLIC
 
     // Flashes screen white and then fades it back to normal
@@ -83,16 +97,6 @@ public class UIManager : MonoBehaviour
     #endregion
 
     #region PRIVATE
-
-    // Called on script load
-    private void Awake ()
-    {
-        // Create singleton instance reference for other scripts to call
-        if (_instance != null) {
-            Debug.LogWarning("More than one instance of UIManager script running");
-        }
-        _instance = this;
-    }
 
     #endregion
     #endregion

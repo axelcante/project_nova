@@ -16,6 +16,16 @@ public class MainMenu : MonoBehaviour
     #endregion VARIABLES
 
     #region METHODS
+    #region UNITY
+
+    // Called before the first frame
+    private void Start ()
+    {
+        StartCoroutine(FadeToBlack(false));
+    }
+
+    #endregion UNITY
+
     #region PUBLIC
 
     // Load the game scene
@@ -30,12 +40,6 @@ public class MainMenu : MonoBehaviour
     #endregion PUBLIC
 
     #region PRIVATE
-
-    // Called before the first frame
-    private void Start ()
-    {
-        StartCoroutine(FadeToBlack(false));
-    }
 
     // Fade to or from black. Same logic as the Shield "Toggle" coroutine, but felt too convoluted to mix both together
     public IEnumerator FadeToBlack (bool fadeIn)
