@@ -89,6 +89,10 @@ public class Enemy : MonoBehaviour
     // Manual "collision" detection by checking the distance between enemy and target (center), and destroying when enemy is within specific range
     private void DestroyOnDistance ()
     {
+        if (Station.GetInstance().GetIsNova() && !_isExploding) {
+            StartCoroutine(Explode());
+        }
+
         // If Large Shield is active and alive, destroy when distance = _largeShieldDistance
         if (Station.GetInstance().CheckElementState(Station.StationElement.LargeShield)) {
             if (_largeShieldDistance - _collisionOffset < _distance && _distance < _largeShieldDistance) {

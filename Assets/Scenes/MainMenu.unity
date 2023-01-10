@@ -941,6 +941,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f80b46f58ab78f4bbb58d48644f78f7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _BlackScreen: {fileID: 714432240}
+  _fadeSpeed: 2
 --- !u!1 &1600331393
 GameObject:
   m_ObjectHideFlags: 0

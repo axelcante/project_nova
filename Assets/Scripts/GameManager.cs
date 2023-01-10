@@ -1,10 +1,23 @@
+using Cinemachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     #region VARIABLES
+    #region SINGLETON DECLARATION
+
+    private static GameManager _instance;
+    public static GameManager GetInstance () { return _instance; }
+
+    #endregion SINGLETON DECLARATION
+
+    [Header("Animations")]
+    [SerializeField] private CinemachineImpulseSource _Impulse;
+    [SerializeField] private float _textFadeDelay;
 
     [Header("Enemy Spawning")]
     [SerializeField] private BoxCollider2D _SpawningArea;
@@ -13,17 +26,45 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _numberOfEnemiesPerWave;
     [Range(0f, 0.99f)]
     public float sideSpawnWeight;
-    
 
     #endregion VARIABLES
 
     #region METHODS
     #region PUBLIC
 
+    // Generates an impulse for our camera shake
+    public void GenerateImpulse ()
+    {
+        _Impulse.GenerateImpulse();
+    }
+
+    // Start the end game coroutines
+    public IEnumerator EndGame ()
+    {
+        // Fade in and out end text
+        yield return UIManager.GetInstance().FadeEndText(true);
+        yield return new WaitForSeconds(_textFadeDelay);
+        yield return UIManager.GetInstance() .FadeEndText(false);
+
+        // Return to main menu
+        SceneManager.LoadScene(0);
+    }
+
     #endregion PUBLIC
 
     #region PRIVATE
 
+    // Awake is called upon instantiation
+    private void Awake ()
+    {
+        // Create singleton instance reference for other scripts to call
+        if (_instance != null) {
+            Debug.LogWarning("More than one instance of GameManager script running");
+        }
+        _instance = this;
+    }
+
+    // Update is called once per frame
     private void Update ()
     {
         if (Input.GetKeyDown(KeyCode.Space)) {

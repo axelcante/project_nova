@@ -25,15 +25,18 @@ public class Station : MonoBehaviour
     [SerializeField] private Shield _LargeShield;
     [SerializeField] private Shield _SmallShield;
 
-    [Header("Station variables")]
-    [SerializeField] private float _maxLargeShieldHealth;
-    [SerializeField] private float _maxSmallShieldHealth;
-    [SerializeField] private float _maxStationHQHealth;
-    private float _stationHQHealth;
-    [SerializeField] private float _ShieldCooldown;
-
     [Header("Animations")]
     [SerializeField] private float _shieldFadeSpeed;
+    [SerializeField] private Animator _Animator;
+    [SerializeField] private float _flashTiming;
+    [SerializeField] private float _novaAnimationTime;
+    private bool _isExploding = false;
+    private bool _isNova = false;
+
+    [Header("Health & health bar")]
+    [SerializeField] private HealthBar _HealthBar;
+    [SerializeField] private float _maxStationHQHealth;
+    private float _stationHQHealth;
 
     #endregion VARIABLES
 
@@ -45,9 +48,9 @@ public class Station : MonoBehaviour
     {
         switch (el) {
             case StationElement.LargeShield:
-                return _LargeShield.IsAlive();
+                return _LargeShield.gameObject.activeSelf && _LargeShield.IsAlive();
             case StationElement.SmallShield:
-                return _SmallShield.IsAlive();
+                return _SmallShield.gameObject.activeSelf && _SmallShield.IsAlive();
             case StationElement.StationHQ:
                 return gameObject.activeSelf;
             default:
@@ -69,10 +72,15 @@ public class Station : MonoBehaviour
                 _SmallShield.TakeDamange(damage);
                 break;
             case StationElement.StationHQ:
-                // Loose health & end game
-                _stationHQHealth -= damage;
-                if (_stationHQHealth < 0)
-                    Debug.Log("GAME OVER");
+                if (!_isExploding) {
+                    // Loose health & end game
+                    _stationHQHealth -= damage;
+                    _HealthBar.UpdateHealth(_stationHQHealth);
+                    if (_stationHQHealth <= 0) {
+                        _isExploding = true;
+                        StartCoroutine(StationExplode());
+                    }
+                }
                 break;
             default:
                 Debug.LogWarning("Outside of StationElements enum case!");
@@ -80,19 +88,11 @@ public class Station : MonoBehaviour
         }
     }
 
-    // Recharges the shields' health based on current max health
-    public void RechargedShieldHealth (Shield shield, StationElement el)
-    {
-        if (el == StationElement.LargeShield)
-            shield.SetHealth(_maxLargeShieldHealth);
-        else
-            shield.SetHealth(_maxSmallShieldHealth);
-    }
-
     // GETTERS
-    public float GetMaxLargeShieldHealth() => _maxLargeShieldHealth;
-    public float GetMaxSmallShieldHealth() => _maxSmallShieldHealth;
-    public float GetShieldCooldown () => _ShieldCooldown;
+    public bool GetIsNova () => _isNova;
+
+    // SETTERS
+    public void SetMaxStationHQHealth (float health) => _maxStationHQHealth = health;
 
     #endregion PUBLIC
 
@@ -106,6 +106,55 @@ public class Station : MonoBehaviour
             Debug.LogWarning("More than one instance of Station script running");
         }
         _instance = this;
+    }
+
+    // Before first frame
+    private void Start ()
+    {
+        _stationHQHealth = _maxStationHQHealth;
+        _HealthBar.gameObject.SetActive(true);
+        _HealthBar.SetMaxHealth(_maxStationHQHealth);
+        _HealthBar.UpdateHealth(_stationHQHealth);
+        _HealthBar.SetName("Station");
+    }
+
+    // Update is called once per frame
+    private void Update ()
+    {
+        // DEBUG
+        if (Input.GetKeyDown(KeyCode.F)) {
+            StartCoroutine(StationExplode());
+        }
+    }
+
+    // NOW I AM BECOME DEATH, THE DESTROYER OF WORLDS
+    private IEnumerator StationExplode ()
+    {
+        // Deactivate both shields and stop them from recharging (way too late for that now!)
+        if (_LargeShield.gameObject.activeSelf)
+            _LargeShield.StationDown();
+        if (_SmallShield.gameObject.activeSelf)
+            _SmallShield.StationDown();
+
+        // Generate 5 impulses randomly seperated by a time interval. Could probably have done this differently?
+        GameManager.GetInstance().GenerateImpulse();
+        yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+        GameManager.GetInstance().GenerateImpulse();
+        yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+        GameManager.GetInstance().GenerateImpulse();
+        yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+        GameManager.GetInstance().GenerateImpulse();
+        yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+        GameManager.GetInstance().GenerateImpulse();
+        yield return new WaitForSeconds(Random.Range(0.2f, 1f));
+
+        // NOOOOOOOOOOVVVVVVVVVAAAAAAAAA
+        _Animator.Play("Nova");
+        yield return new WaitForSeconds(+_flashTiming);  // Length of the first part of the "Nova" animation
+        StartCoroutine(UIManager.GetInstance().QuickFlash());
+        _isNova = true;
+        yield return new WaitForSeconds(_novaAnimationTime);
+        StartCoroutine(GameManager.GetInstance().EndGame());
     }
 
     #endregion PRIVATE
