@@ -8,14 +8,15 @@ public class DefenseOrb : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private GameObject _LaserPrefab;   // Laser prefab gameobject containing a line renderer
+    [SerializeField] private Transform _FirePoint;      // The 2D point where the laser will originate
     [SerializeField] private float _laserFadeSpeed;     // Time before which the laser dissipates
-    [SerializeField] private float _delayBetweenShot;
+    [SerializeField] private float _delayBetweenShot;   // Time between shots of a same charge
 
-    private int _levelNb = -1;          // Tracks the current upgrade level for this weapon
-    private bool _isMaxLevel = false;   // Checks if this weapon can still be upgraded
     private bool _isFiring = false;     // Tracks if a fire coroutine is already running
 
     // Properties (updated by level)
+    private int _levelNb = -1;                  // Tracks the current upgrade level for this weapon
+    private bool _isMaxLevel = false;           // Checks if this weapon can still be upgraded
     private Upgrades.DefenseOrbLevel _Level;    // Holds a reference to the current weapon level
     private float _currentRechargeSpeed;        // Time before laser can shoot again
     private int _currentLasersPerCharge;        // Number of lasers fired per charge
@@ -64,6 +65,15 @@ public class DefenseOrb : MonoBehaviour
         }
     }
 
+    // Deactivate this weapon
+    public void StopFiring ()
+    {
+        // Stop currently running coroutines and any subsequent ones
+        if (_isFiring)
+            StopCoroutine(Fire());
+        _isFiring = true;
+    }
+
     // GETTERS
     public bool IsMaxLevel () => _isMaxLevel;
 
@@ -90,11 +100,11 @@ public class DefenseOrb : MonoBehaviour
 
             if (enemy) {
                 // Create a laser containing a line renderer
-                LineRenderer laser = Instantiate(_LaserPrefab, transform.position, Quaternion.identity, transform)
+                LineRenderer laser = Instantiate(_LaserPrefab, _FirePoint.position, Quaternion.identity, transform)
                     .GetComponent<LineRenderer>();
 
                 // Set the line renderer's vertices
-                laser.SetPosition(0, transform.position);
+                laser.SetPosition(0, _FirePoint.position);
                 laser.SetPosition(1, enemy.transform.position);
 
                 // Destroy the enemy GameObject that took the hit

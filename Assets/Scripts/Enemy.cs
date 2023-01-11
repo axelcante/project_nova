@@ -19,7 +19,7 @@ public class Enemy : MonoBehaviour
     [Header("Physics")]
     private Vector2 _CenterPosition;    // For us, this is (0,0), i.e., the position of the Station
     private Vector2 _Direction;         // Direction between this enemy and the center position
-    public float _distance;             // Distance between this enemy and the center position
+    private float _distance;            // Distance between this enemy and the center position
 
     [Header("CollisionDetection")]
     [SerializeField] private float _largeShieldDistance;    // Distance by which an enemy is considered to have collided with the LargeShield

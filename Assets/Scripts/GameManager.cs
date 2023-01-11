@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [Header("Animations")]
     [SerializeField] private CinemachineImpulseSource _Impulse;
     [SerializeField] private float _textFadeDelay;
+    [SerializeField] private float _weaponFadeSpeed;
 
     [Header("Enemy Spawning")]
     [SerializeField] private BoxCollider2D _SpawningArea;
@@ -27,14 +28,16 @@ public class GameManager : MonoBehaviour
     public float sideSpawnWeight;
 
     [Header("Weapons")]
+    [SerializeField] private GameObject _WeaponsContainer;
     [SerializeField] private DefenseOrb[] _DefenseOrbs;
     [SerializeField] private Complexity[] _Complexities;
-    [SerializeField] private Pulsar _Pulsar;
+    [SerializeField] private Pulsar[] _Pulsars;
     private List<Enemy> _Enemies = new List<Enemy>();
 
-    [Header("Shields")]
+    [Header("Shields & Station")]
     [SerializeField] private Shield _SmallShield;
     [SerializeField] private Shield _LargeShield;
+    [SerializeField] private Station _Station;
 
     #endregion VARIABLES
 
@@ -67,7 +70,8 @@ public class GameManager : MonoBehaviour
             //        break;
             //    }
             //}
-            _LargeShield.IncreaseLevel();
+            _Station.IncreaseLevel();
+            //StartCoroutine(UIManager.GetInstance().ToggleShop());
         }
     }
 
@@ -75,10 +79,60 @@ public class GameManager : MonoBehaviour
 
     #region PUBLIC
 
-    // Generates an impulse for our camera shake
+    // Generates an impulse for our camera shake. Also hides and disables weapons
     public void GenerateImpulse ()
     {
         _Impulse.GenerateImpulse();
+
+        // Hide weapons and disable them
+        StartCoroutine(DeactiveAllWeapons());
+    }
+
+    // Deactivates all weapons (when station is down)
+    // This method should be on the weapons themselves,
+    // but since I didn't create a common inherited class, I shot myself in the foot
+    public IEnumerator DeactiveAllWeapons ()
+    {
+        // Fade all Defense Orbs out
+        foreach (DefenseOrb orb in _DefenseOrbs) {
+            if (orb.gameObject.activeSelf)
+                StartCoroutine(DeactivateWeapon(orb.GetComponent<SpriteRenderer>(), _weaponFadeSpeed));
+        }
+        
+        // Fade all Complexities out
+        foreach (Complexity comp in _Complexities) {
+            if (comp.gameObject.activeSelf)
+                StartCoroutine(DeactivateWeapon(comp.GetComponent<SpriteRenderer>(), _weaponFadeSpeed));
+        }
+
+        // Fade all Pulsars out
+        foreach (Pulsar pulsar in _Pulsars) {
+            if (pulsar.gameObject.activeSelf)
+                StartCoroutine(DeactivateWeapon(pulsar.GetComponent<SpriteRenderer>(), _weaponFadeSpeed));
+        }
+
+        // Wait for all fade animations to be over
+        yield return new WaitForSeconds(_weaponFadeSpeed);
+
+        // Deactivate all the weapon gameobjects
+        _WeaponsContainer.SetActive(false);
+    }
+
+    // Fade out a weapon using its sprite renderer
+    private IEnumerator DeactivateWeapon (SpriteRenderer sprite, float speed)
+    {
+        // Lerp the color from it's current one to one with no alpha (invisible)
+        float time = 0;
+        Color startColor = sprite.color;
+        Color targetColor = startColor;
+        targetColor.a = 0;
+
+        while (time < speed) {
+            sprite.color = Color.Lerp(startColor, targetColor, time / speed);
+            time += Time.deltaTime;
+
+            yield return null;
+        }
     }
 
     // Start the end game coroutines

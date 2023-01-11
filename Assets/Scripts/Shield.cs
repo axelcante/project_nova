@@ -23,12 +23,12 @@ public class Shield : MonoBehaviour
     [Header("Health bar")]
     [SerializeField] private HealthBar _HealthBar;      // Reference to the health bar UI element
 
-    private int _levelNb = -1;      // Tracks the current upgrade level for this weapon
-    private bool _isMaxLevel;       // Tracks if this shield can still be upgraded
     private bool _isAlive;          // Boolean used by other scripts to determine if this shield is active
     private float _currentHealth;   // Current shield health
 
     // Properties (can be leveled up)
+    private int _levelNb = -1;              // Tracks the current upgrade level for this weapon
+    private bool _isMaxLevel;               // Tracks if this shield can still be upgraded
     private Upgrades.ShieldLevel _Level;    // Holds a reference to the current shield level
     private float _currentMaxHealth;        // Maximum possible health
     private float _currentShieldCooldown;   // Time to recharge a shield to full health

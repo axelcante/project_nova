@@ -2,8 +2,10 @@ COLORS
 
 neon blue 1: 00FFC1
 neon blue 2: 6EFFDC
-neon blue Darke: 007E5F
+neon blue 3: 00FAFF
+neon blue Dark: 007E5F
 neon orange: FF7800
 neon yellow 1: FFF100
 neon red 1: FF0016
 neon pink 1: FF00D9
+neon purple: 8600FF

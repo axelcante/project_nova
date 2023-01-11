@@ -15,12 +15,20 @@ public class UIManager : MonoBehaviour
     #endregion SINGLETON DECLARATION
 
     [Header("Animations")]
+    [Header("Flashes & Text")]
     [SerializeField] private Image _BlackScreen;
     [SerializeField] private TMP_Text _EndGameText;
     [SerializeField] private Color _WhiteStart;
     [SerializeField] private Color _WhiteEnd;
     [SerializeField] private float _flashSpeed;
     [SerializeField] private float _textFadeSpeed;
+    [Header("UI")]
+    [SerializeField] private Transform _ShopUITransform;
+    [SerializeField] private float _shopAnimationSpeed;
+    [SerializeField] private float _xPosHidden;
+    [SerializeField] private float _xPosDisplay;
+
+    private bool _isShopDisplayed = false;
 
     #endregion VARIABLES
 
@@ -92,6 +100,23 @@ public class UIManager : MonoBehaviour
         }
         currentColor.a = fadeIn ? 1 : 0;
         _EndGameText.color = currentColor;
+    }
+
+    // Moves the UI to the left of the screen or back into play
+    public IEnumerator ToggleShop ()
+    {
+        float time = 0;
+        bool moveIn = !_isShopDisplayed;
+
+        Vector2 startPos = new Vector2(moveIn ? _xPosHidden : _xPosDisplay, _ShopUITransform.position.y);
+        Vector2 endPos = new Vector2(moveIn ? _xPosDisplay : _xPosHidden, _ShopUITransform.position.y);
+        while (time < _shopAnimationSpeed) {
+            _ShopUITransform.position = Vector2.Lerp(startPos, endPos, time / _shopAnimationSpeed);
+            time += Time.deltaTime;
+            yield return null;
+        }
+        _ShopUITransform.position = endPos;
+        _isShopDisplayed = moveIn;
     }
 
     #endregion

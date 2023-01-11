@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1050103088}
   - component: {fileID: 1050103089}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Explosion
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -234,10 +234,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _health: 100
   _damage: 10
-  minSpeed: 0.5
-  maxSpeed: 2
-  gravityFactor: 1.2
-  _distance: 0
+  minSpeed: 0.2
+  maxSpeed: 1.2
+  gravityFactor: 0.8
   _largeShieldDistance: 3.5
   _smallShieldDistance: 1.5
   _stationHQDistance: 0.3

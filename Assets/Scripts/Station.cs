@@ -30,13 +30,21 @@ public class Station : MonoBehaviour
     [SerializeField] private Animator _Animator;
     [SerializeField] private float _flashTiming;
     [SerializeField] private float _novaAnimationTime;
+    private bool _isRepairing = false;
     private bool _isExploding = false;
     private bool _isNova = false;
 
-    [Header("Health & health bar")]
+    [Header("Health bar")]
     [SerializeField] private HealthBar _HealthBar;
-    [SerializeField] private float _maxStationHQHealth;
     private float _stationHQHealth;
+
+    // Properties (can be leveled up)
+    private int _levelNb = -1;              // Tracks the current upgrade level for this station
+    private bool _isMaxLevel = false;       // Checks if this station can still be upgraded
+    private Upgrades.StationLevel _Level;   // Holds a reference to the current station level
+    private float _currentMaxHealth;        // Maximum possible health
+    private float _currentRepairAmount;     // Amount of health gained for each health tick
+    private float _currentRepairSpeed;      // Time before each health tick
 
     #endregion VARIABLES
 
@@ -56,11 +64,15 @@ public class Station : MonoBehaviour
     // Before first frame
     private void Start ()
     {
-        _stationHQHealth = _maxStationHQHealth;
         _HealthBar.gameObject.SetActive(true);
-        _HealthBar.SetMaxHealth(_maxStationHQHealth);
-        _HealthBar.UpdateHealth(_stationHQHealth);
-        //_HealthBar.SetName("Station");
+        IncreaseLevel();
+    }
+
+    // Called once per frame
+    private void Update ()
+    {
+        if (!_isRepairing)
+            StartCoroutine(RepairOverTime());
     }
 
     //// Update is called once per frame
@@ -75,6 +87,27 @@ public class Station : MonoBehaviour
     #endregion UNITY
 
     #region PUBLIC
+
+    // Update station level
+    public void IncreaseLevel ()
+    {
+        if (!_isMaxLevel) {
+            _levelNb++;
+
+            // If we've reached max level, mark it so
+            if (_levelNb == Upgrades.GetInstance()._StationLevels.Count - 1)
+                _isMaxLevel = true;
+
+            if (Upgrades.GetInstance()._StationLevels.Count > 0 && _levelNb >= 0) {
+                _Level = Upgrades.GetInstance()._StationLevels[_levelNb];
+
+                // Set current properties based on this level
+                SetLevelProperties(_Level);
+            } else {
+                Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
+            }
+        }
+    }
 
     // Return true if a specific Station Element (shields) is active or not
     public bool CheckElementState (StationElement el)
@@ -124,12 +157,48 @@ public class Station : MonoBehaviour
     // GETTERS
     public bool GetIsNova () => _isNova;
 
-    // SETTERS
-    public void SetMaxStationHQHealth (float health) => _maxStationHQHealth = health;
-
     #endregion PUBLIC
 
     #region PRIVATE
+
+    // Update the station properties based on current upgrade level
+    private void SetLevelProperties (Upgrades.StationLevel level)
+    {
+        // Measure the difference in max health between the two levels if beyond level 0
+        float healthDifference = _levelNb > 0 ? level._maxHealth - _currentMaxHealth : level._maxHealth;
+
+        // Update properties
+        _currentMaxHealth = level._maxHealth;
+        _currentRepairAmount = level._repairAmount;
+        _currentRepairSpeed = level._repairSpeed;
+
+        // Increase the UI max health & heal for difference
+        _HealthBar.SetMaxHealth(_currentMaxHealth);
+        RepairStation(healthDifference);
+    }
+
+    // Increase current health
+    private void RepairStation (float amount)
+    {
+        if (_stationHQHealth + amount > _currentMaxHealth)
+            _stationHQHealth = _currentMaxHealth;
+        else
+            _stationHQHealth += amount;
+
+        // Update health UI
+        _HealthBar.UpdateHealth(_stationHQHealth);
+    }
+
+    // Regenerate health over time based on current repair speed
+    private IEnumerator RepairOverTime ()
+    {
+        _isRepairing = true;
+
+        RepairStation(_currentRepairAmount);
+        yield return new WaitForSeconds(_currentRepairSpeed);
+
+        _isRepairing = false;
+    }
 
     // NOW I AM BECOME DEATH, THE DESTROYER OF WORLDS
     private IEnumerator StationExplode ()
