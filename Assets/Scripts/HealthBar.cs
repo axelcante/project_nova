@@ -25,9 +25,9 @@ public class HealthBar : MonoBehaviour
     // Update the current health for this health bar
     public void UpdateHealth (float health)
     {
-        if (health > _Slider.value) {   // Updating health -- need to fade the text back in
+        // Increading health -- need to fade the text back in
+        if (health > _Slider.value)     
             FadeText(true);
-        }
 
         if (health <= 0) {
             if (_AnimateHealth != null) {
@@ -61,7 +61,7 @@ public class HealthBar : MonoBehaviour
     }
 
     // Update this health bars name
-    public void SetName (string name) => _name.text = name;
+    //public void SetName (string name) => _name.text = name;
 
     // Fade out the health bar text
     public void FadeText (bool fadeIn)

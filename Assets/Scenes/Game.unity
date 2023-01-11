@@ -299,7 +299,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Name
+  m_text: S. Shield
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -1155,7 +1155,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &695951244
 Transform:
   m_ObjectHideFlags: 0
@@ -1243,8 +1243,6 @@ MonoBehaviour:
   _ShieldDeadColor: {r: 1, g: 0, b: 0.08627451, a: 0.4509804}
   _shieldDeadAlpha: 115
   _ShieldHitColor: {r: 0.64705884, g: 1, b: 0.9137255, a: 1}
-  _maxHealth: 150
-  _shieldCooldown: 5
   _HealthBar: {fileID: 585503100}
 --- !u!1 &723206632
 GameObject:
@@ -1304,7 +1302,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Name
+  m_text: Station
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -1444,8 +1442,8 @@ MonoBehaviour:
   - {fileID: 1815895777}
   - {fileID: 2002135258}
   _Pulsar: {fileID: 0}
-  _SmallShield: {fileID: 695951243}
-  _LargeShield: {fileID: 1342694796}
+  _SmallShield: {fileID: 695951247}
+  _LargeShield: {fileID: 1342694800}
 --- !u!61 &790507672
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1664,10 +1662,22 @@ MonoBehaviour:
   compelexity: 0
   pulsar: 0
   health: 0
-  health_small: 0
-  rechargerate: 0
-  health_large: 0
-  recharge_rate2: 0
+  _ss_mh_0: 100
+  _ss_cd_0: 7
+  _ss_mh_1: 140
+  _ss_cd_1: 7
+  _ss_mh_2: 140
+  _ss_cd_2: 5
+  _ss_mh_3: 180
+  _ss_cd_3: 5
+  _ls_mh_0: 200
+  _ls_cd_0: 10
+  _ls_mh_1: 240
+  _ls_cd_1: 10
+  _ls_mh_2: 240
+  _ls_cd_2: 8
+  _ls_mh_3: 300
+  _ls_cd_3: 8
 --- !u!1 &892482223
 GameObject:
   m_ObjectHideFlags: 0
@@ -1879,8 +1889,6 @@ MonoBehaviour:
   _LaserPrefab: {fileID: 8867596072743158771, guid: 0b95bf3951bd5c24baa8f208a08c9b92, type: 3}
   _laserFadeSpeed: 0.3
   _delayBetweenShot: 0.2
-  _currentRechargeSpeed: 0
-  _currentLasersPerCharge: 0
 --- !u!1 &953656056
 GameObject:
   m_ObjectHideFlags: 0
@@ -2192,8 +2200,6 @@ MonoBehaviour:
   _LaserPrefab: {fileID: 8867596072743158771, guid: 0b95bf3951bd5c24baa8f208a08c9b92, type: 3}
   _laserFadeSpeed: 0.3
   _delayBetweenShot: 0.2
-  _currentRechargeSpeed: 0
-  _currentLasersPerCharge: 0
 --- !u!1 &1183938207
 GameObject:
   m_ObjectHideFlags: 0
@@ -2395,7 +2401,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1342694797
 Transform:
   m_ObjectHideFlags: 0
@@ -2483,8 +2489,6 @@ MonoBehaviour:
   _ShieldDeadColor: {r: 1, g: 0, b: 0.08627451, a: 0.4509804}
   _shieldDeadAlpha: 115
   _ShieldHitColor: {r: 0.6462264, g: 1, b: 0.9146064, a: 1}
-  _maxHealth: 300
-  _shieldCooldown: 8
   _HealthBar: {fileID: 626886091}
 --- !u!1 &1388911698
 GameObject:
@@ -3018,7 +3022,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Name
+  m_text: L. Shield
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -3112,7 +3116,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1789098389
 Transform:
   m_ObjectHideFlags: 0
@@ -3195,8 +3199,6 @@ MonoBehaviour:
   _LaserPrefab: {fileID: 8867596072743158771, guid: 0b95bf3951bd5c24baa8f208a08c9b92, type: 3}
   _laserFadeSpeed: 0.3
   _delayBetweenShot: 0.2
-  _currentRechargeSpeed: 0
-  _currentLasersPerCharge: 0
 --- !u!1 &1815895774
 GameObject:
   m_ObjectHideFlags: 0

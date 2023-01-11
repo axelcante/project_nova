@@ -17,8 +17,8 @@ public class DefenseOrb : MonoBehaviour
 
     // Properties (updated by level)
     private Upgrades.DefenseOrbLevel _Level;    // Holds a reference to the current weapon level
-    public float _currentRechargeSpeed;        // Time before laser can shoot again
-    public int _currentLasersPerCharge;        // Number of lasers fired per charge
+    private float _currentRechargeSpeed;        // Time before laser can shoot again
+    private int _currentLasersPerCharge;        // Number of lasers fired per charge
 
     #endregion VARIABLES
 

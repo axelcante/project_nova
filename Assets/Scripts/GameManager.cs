@@ -33,8 +33,8 @@ public class GameManager : MonoBehaviour
     private List<Enemy> _Enemies = new List<Enemy>();
 
     [Header("Shields")]
-    [SerializeField] private GameObject _SmallShield;
-    [SerializeField] private GameObject _LargeShield;
+    [SerializeField] private Shield _SmallShield;
+    [SerializeField] private Shield _LargeShield;
 
     #endregion VARIABLES
 
@@ -67,7 +67,7 @@ public class GameManager : MonoBehaviour
             //        break;
             //    }
             //}
-            _DefenseOrbs[0].IncreaseLevel();
+            _LargeShield.IncreaseLevel();
         }
     }
 

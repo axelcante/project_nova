@@ -60,7 +60,7 @@ public class Station : MonoBehaviour
         _HealthBar.gameObject.SetActive(true);
         _HealthBar.SetMaxHealth(_maxStationHQHealth);
         _HealthBar.UpdateHealth(_stationHQHealth);
-        _HealthBar.SetName("Station");
+        //_HealthBar.SetName("Station");
     }
 
     //// Update is called once per frame

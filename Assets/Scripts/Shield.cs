@@ -7,7 +7,6 @@ public class Shield : MonoBehaviour
     #region VARIABLES
 
     [SerializeField] private Station.StationElement _stationElement; // Identifier for this station element
-    private Station _Station;   // Reference to the singleton Station.cs script
 
     [Header("Animations")]
     [SerializeField] private float _fadeSpeed;      // The speed at which the shield alpha fades (in or out)
@@ -21,13 +20,19 @@ public class Shield : MonoBehaviour
     private Coroutine _FlashOnHit = null;   // Coroutine tracking
     private Coroutine _Recharge = null;     // Coroutine tracking
 
-    [Header("Health & health bar")]
-    [SerializeField] private float _maxHealth;          // Maximum possible health (can be increased)
-    [SerializeField] private float _shieldCooldown;     // Time to recharge a shield to full health
+    [Header("Health bar")]
     [SerializeField] private HealthBar _HealthBar;      // Reference to the health bar UI element
-    private float _health;                              // Current shield helth
-    private bool _isAlive;                              // Boolean used by other scripts to determine if this shield is active
 
+    private int _levelNb = -1;      // Tracks the current upgrade level for this weapon
+    private bool _isMaxLevel;       // Tracks if this shield can still be upgraded
+    private bool _isAlive;          // Boolean used by other scripts to determine if this shield is active
+    private float _currentHealth;   // Current shield health
+
+    // Properties (can be leveled up)
+    private Upgrades.ShieldLevel _Level;    // Holds a reference to the current shield level
+    private float _currentMaxHealth;        // Maximum possible health
+    private float _currentShieldCooldown;   // Time to recharge a shield to full health
+    
     #endregion VARIABLES
 
     #region METHODS
@@ -38,36 +43,53 @@ public class Shield : MonoBehaviour
     {
         _isAlive = true;
 
-        // Get references to Station instance & set this shield's type
-        _Station = Station.GetInstance();
+        // Increase the level by one (starts at -1) at the start of this object's lifetime
+        IncreaseLevel();
 
         // Initialize health to maximum possible
-        _health = _maxHealth;
-
-        // Set the corresponding health bar to active
-        _HealthBar.gameObject.SetActive(true);
-        _HealthBar.SetMaxHealth(_maxHealth);
-        if (_stationElement == Station.StationElement.LargeShield)
-            _HealthBar.SetName("L. Shield");
-        else
-            _HealthBar.SetName("S. Shield");
-
-        // Update the health bar accordingly
-        _HealthBar.UpdateHealth(_health);
+        _currentHealth = _currentMaxHealth;
     }
 
     #endregion UNITY
 
     #region PUBLIC
 
+    // Update shield level
+    public void IncreaseLevel ()
+    {
+        // Depending on this shield's type (large or small), get the corresponding list of levels from the Upgrades script
+        bool lshield = _stationElement == Station.StationElement.LargeShield;
+        List<Upgrades.ShieldLevel> levels = lshield ? Upgrades.GetInstance()._LShieldLevels :
+            Upgrades.GetInstance()._SShieldLevels;
+
+        // Only increase level if max level has not already been reached
+        if (!_isMaxLevel) {
+            _levelNb++;
+
+            // If we've reached max level, mark it so
+            if (_levelNb == levels.Count - 1)
+                _isMaxLevel = true;
+
+            // Get the corresponding level
+            if (levels.Count > 0 && _levelNb >= 0) {
+                _Level = levels[_levelNb];
+
+                // Set current properties based on this level
+                SetLevelProperties(_Level);
+            } else {
+                Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
+            }
+        }
+    }
+
     // Reduce current shield health by x amount
     public void TakeDamange (float damage)
     {
-        _health -= damage;
-        _HealthBar.UpdateHealth(_health);
+        _currentHealth -= damage;
+        _HealthBar.UpdateHealth(_currentHealth);
 
         // Shield takes damage
-        if (_health > 0) {
+        if (_currentHealth > 0) {
             // Coroutine management
             if (_FlashOnHit == null) {
                 _FlashOnHit = StartCoroutine(FlashOnHit());
@@ -100,11 +122,28 @@ public class Shield : MonoBehaviour
     }
 
     // GETTERS
+    public bool IsMaxLevel () => _isMaxLevel;
     public bool IsAlive () => _isAlive;
 
     #endregion PUBLIC
 
     #region PRIVATE
+
+    // Update the shield properties based on current upgrade level
+    private void SetLevelProperties (Upgrades.ShieldLevel level)
+    {
+        _currentMaxHealth = level._maxHealth;
+        _currentShieldCooldown = level._cooldown;
+
+        // Also increase the health bar max display accordingly
+        if (!_HealthBar.gameObject.activeSelf)
+            _HealthBar.gameObject.SetActive(true);
+
+        // Leveling up cause shield to recharge to full! Hurray!
+        _currentHealth = _currentMaxHealth;
+        _HealthBar.SetMaxHealth(_currentMaxHealth);
+        _HealthBar.UpdateHealth(_currentHealth);
+    }
 
     // When shields run out of health, call this coroutine to set a timer as they recharge
     private IEnumerator Recharge ()
@@ -113,13 +152,13 @@ public class Shield : MonoBehaviour
         yield return TransitionColors(GetComponent<SpriteRenderer>().color, _ShieldDeadColor, _colorSwapSpeed);
         yield return Toggle(false);
         // 2. Wait for shield to recharge
-        yield return new WaitForSeconds(_shieldCooldown);
+        yield return new WaitForSeconds(_currentShieldCooldown);
         // 3. When shield is recharged, fade it in, then deactivate it
         yield return Toggle(true);
         yield return TransitionColors(GetComponent<SpriteRenderer>().color, _ShieldAliveColor, _colorSwapSpeed);
         // 4. Recharge this shield's health
-        _health = _maxHealth;
-        _HealthBar.UpdateHealth(_health);
+        _currentHealth = _currentMaxHealth;
+        _HealthBar.UpdateHealth(_currentHealth);
         _isAlive = true;
     }
 
