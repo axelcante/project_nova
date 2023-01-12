@@ -10,7 +10,7 @@ public class MainMenu : MonoBehaviour
     [Header("Animations")]
     [SerializeField] private Image _BlackScreen;
     [SerializeField] private float _fadeSpeed;
-    private bool _isFading = false;
+    [SerializeField] private Button[] _UIButtons;
 
     #endregion VARIABLES
 
@@ -20,7 +20,7 @@ public class MainMenu : MonoBehaviour
     // Called before the first frame
     private void Start ()
     {
-        StartCoroutine(FadeToBlack(false));
+        StartCoroutine(FadeBlackScreen(false, _fadeSpeed));
     }
 
     #endregion UNITY
@@ -30,26 +30,27 @@ public class MainMenu : MonoBehaviour
     // Load the game scene
     public void StartGame ()
     {
-        if (_isFading) {
-
-        }
-        SceneManager.LoadScene(1);
+        StartCoroutine(FadeBlackScreen(true, _fadeSpeed));
     }
 
     #endregion PUBLIC
 
     #region PRIVATE
 
-    // Fade to or from black. Same logic as the Shield "Toggle" coroutine, but felt too convoluted to mix both together
-    public IEnumerator FadeToBlack (bool fadeIn)
+    // Fade to or from black screen
+    public IEnumerator FadeBlackScreen (bool fadeIn, float speed)
     {
-        _isFading = true;
+        // Fading in means player has clicked play button, in which case we much deactive all buttons while animation runs
+        if (fadeIn) {
+            foreach(Button button in _UIButtons) {
+                button.interactable = false;
+            }
+        }
 
         float time = 0;
         Color currentColor = _BlackScreen.color;
-        float currentAlpha = currentColor.a;
-        while (time < _fadeSpeed) {
-            currentColor.a = Mathf.Lerp(currentAlpha, fadeIn ? 1 : 0, time / _fadeSpeed);
+        while (time < speed) {
+            currentColor.a = Mathf.Lerp(fadeIn ? 0 : 1, fadeIn ? 1 : 0, time / speed);
             _BlackScreen.color = currentColor;
             time += Time.deltaTime;
             yield return null;
@@ -57,7 +58,15 @@ public class MainMenu : MonoBehaviour
         currentColor.a = fadeIn ? 1 : 0;
         _BlackScreen.color = currentColor;
 
-        _isFading = false;
+        // First launch of game, arriving in main menu buttons need to be set to interactable
+        if (!fadeIn) {
+            foreach (Button button in _UIButtons) {
+                button.interactable = true;
+            }
+        } else {
+            // Play Button pressed, faded to black, now must load scene!
+            SceneManager.LoadScene(1);
+        }
     }
 
     #endregion PRIVATE

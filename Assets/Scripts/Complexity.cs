@@ -10,6 +10,7 @@ public class Complexity : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer _Sprite;        // Visual element of this weapon
+    [SerializeField] private float _spriteFadeInSpeed;      // Speed at which the sprite first fades into view when purchased
     [SerializeField] private GameObject _LaserBeamPrefab;   // Reference to the laser beam prefab to be instantiated
     [SerializeField] private float _laserFadeInSpeed;       // Animation time to fade in laser beam
     [SerializeField] private float _laserFadeOutSpeed;      // Animation time to fade out laser beam
@@ -53,7 +54,8 @@ public class Complexity : MonoBehaviour
     // Called once per frame, manages the auto shoot coroutine
     private void Update ()
     {
-        if (_isActive) {
+        // Only fire when enemies are being spawned (not while in shop)
+        if (_isActive && GameManager.GetInstance().GetCurrentPhase() == GameManager.Phase.WAVE) {
             if (!_isFiring)
                 StartCoroutine(Fire());
         }
@@ -78,7 +80,10 @@ public class Complexity : MonoBehaviour
             _isActive = true;
 
             // Show the weapon (if it is not already shown)
-            _Sprite.enabled = true;
+            if (!_Sprite.enabled) {
+                _Sprite.enabled = true;
+                StartCoroutine(FadeSpriteIn(_spriteFadeInSpeed));
+            }
             
             _levelNb++;
 
@@ -233,6 +238,22 @@ public class Complexity : MonoBehaviour
             current.a = 1;
             laser.material.color = current;
         }
+    }
+
+    // Fade in sprite when weapon first purchased
+    private IEnumerator FadeSpriteIn (float speed)
+    {
+        Color current = _Sprite.color;
+        float time = 0;
+        while (time < speed) {
+            current.a = Mathf.Lerp(0, 1, time / speed);
+            _Sprite.color = current;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+        current.a = 1;
+        _Sprite.color = current;
     }
 
     #endregion PRIVATE

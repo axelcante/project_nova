@@ -90,7 +90,8 @@ public class Station : MonoBehaviour
     // Called once per frame
     private void Update ()
     {
-        if (!_isRepairing)
+        // Only heal during the WAVE phase (when enemies are closing in)
+        if (!_isRepairing && GameManager.GetInstance().GetCurrentPhase() == GameManager.Phase.WAVE)
             StartCoroutine(RepairOverTime());
     }
 
@@ -166,15 +167,7 @@ public class Station : MonoBehaviour
                 _SmallShield.TakeDamange(damage);
                 break;
             case Element.StationHQ:
-                if (!_isExploding) {
-                    // Loose health & end game
-                    _stationHQHealth -= damage;
-                    _HealthBar.UpdateHealth(_stationHQHealth);
-                    if (_stationHQHealth <= 0) {
-                        _isExploding = true;
-                        StartCoroutine(StationExplode());
-                    }
-                }
+                TakeDamage(damage);
                 break;
             default:
                 Debug.LogWarning("Outside of StationElements enum case!");

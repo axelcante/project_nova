@@ -12,6 +12,7 @@ public class Shield : MonoBehaviour
 
     [Header("Animations")]
     [SerializeField] private SpriteRenderer _Sprite;    // A reference to the sprite displaying this shield
+    [SerializeField] private float _spriteFadeInSpeed;  // The speed at which the sprite fades in when purchased
     [SerializeField] private float _fadeSpeed;          // The speed at which the shield alpha fades (in or out)
     [SerializeField] private float _colorSwapSpeed;     // The speed at which the shield swaps from two colors
     [SerializeField] private float _hitSpeed;           // The speed at which the shield animates being hit
@@ -22,6 +23,7 @@ public class Shield : MonoBehaviour
 
     private Coroutine _FlashOnHit = null;   // Coroutine tracking
     private Coroutine _Recharge = null;     // Coroutine tracking
+    private bool _isRecharging = false;     // Track if the _Recharge coroutine is running (in case the variable itself is not enough)
 
     [Header("Health bar")]
     [SerializeField] private HealthBar _HealthBar;      // Reference to the health bar UI element
@@ -76,7 +78,10 @@ public class Shield : MonoBehaviour
             _isAlive = true;
 
             // Enable the sprite renderer
-            _Sprite.enabled = true;
+            if (!_Sprite.enabled) {
+                _Sprite.enabled = true;
+                StartCoroutine(FadeSpriteIn(_fadeSpeed));
+            }
 
             // If we've reached max level, mark it so
             if (_levelNb == levels.Count - 1)
@@ -127,12 +132,23 @@ public class Shield : MonoBehaviour
     public void StationDown ()
     {
         // Stop coroutines if they are running
-        if (_Recharge != null)
+        if (_isRecharging)
             StopCoroutine(_Recharge);
         if (_FlashOnHit != null)
             StopCoroutine(_FlashOnHit);
 
         StartCoroutine(Toggle(false));
+    }
+
+    // Manually recharge the shield (if it's not in the process already) when shop phase is up
+    public void ManualShieldRecharge ()
+    {
+        // If not dead and not recharging (i.e., at worst, damaged), recharge!
+        if (!_isRecharging && _isAlive) {
+            _currentHealth = _currentMaxHealth;
+            _HealthBar.UpdateHealth(_currentHealth);
+            _isAlive = true;
+        }
     }
 
     // GETTERS
@@ -196,6 +212,8 @@ public class Shield : MonoBehaviour
     // When shields run out of health, call this coroutine to set a timer as they recharge
     private IEnumerator Recharge ()
     {
+        _isRecharging = true;
+
         // 1. Deactivate shield, then fade it out
         yield return TransitionColors(GetComponent<SpriteRenderer>().color, _ShieldDeadColor, _colorSwapSpeed);
         yield return Toggle(false);
@@ -208,6 +226,8 @@ public class Shield : MonoBehaviour
         _currentHealth = _currentMaxHealth;
         _HealthBar.UpdateHealth(_currentHealth);
         _isAlive = true;
+
+        _isRecharging = false;
     }
 
     // Call this coroutine to "flash" the shield color (simulating hit)
@@ -224,27 +244,43 @@ public class Shield : MonoBehaviour
     {
         float time = 0;
         while (time < speed) {
-            GetComponent<SpriteRenderer>().color = Color.Lerp(start, end, time / speed);
+            _Sprite.color = Color.Lerp(start, end, time / speed);
             time += Time.deltaTime;
             yield return null;
         }
-        GetComponent<SpriteRenderer>().color = end;
+        _Sprite.color = end;
     }
 
     // Call this coroutine to either fade in or fade out a shield (when it is activated or destroyed)
     private IEnumerator Toggle (bool toActivate)
     {
         float time = 0;
-        Color currentColor = GetComponent<SpriteRenderer>().color;
+        Color currentColor = _Sprite.color;
         float currentAlpha = currentColor.a;
         while (time < _fadeSpeed) {
             currentColor.a = Mathf.Lerp(currentAlpha, toActivate ? _shieldDeadAlpha / 255 : 0, time / _fadeSpeed);
-            GetComponent<SpriteRenderer>().color = currentColor;
+            _Sprite.color = currentColor;
             time += Time.deltaTime;
             yield return null;
         }
         currentColor.a = toActivate ? _shieldDeadAlpha / 255 : 0;
-        GetComponent<SpriteRenderer>().color = currentColor;
+        _Sprite.color = currentColor;
+    }
+
+    // Fade in sprite when weapon first purchased
+    private IEnumerator FadeSpriteIn (float speed)
+    {
+        Color current = _Sprite.color;
+        float time = 0;
+        while (time < speed) {
+            current.a = Mathf.Lerp(0, 1, time / speed);
+            _Sprite.color = current;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+        current.a = 1;
+        _Sprite.color = current;
     }
 
     #endregion PRIVATE

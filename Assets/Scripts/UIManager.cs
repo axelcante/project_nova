@@ -22,7 +22,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Color _WhiteEnd;               // Black image color when flashing white
     [SerializeField] private float _flashSpeed;             // Speed at which the screen flashes white
     [Header("UI Items")]
-    [SerializeField] private Transform _ShopUITransform;    // Position of the Shop UI
+    [SerializeField] private RectTransform _ShopUIPos;      // Position of the Shop UI as a rect transform
     [SerializeField] private Color _StartCreditsColor;      // Start color for the Credits text in the Shop UI
     [SerializeField] private Color _EndCreditsColor;        // End color for the Credits text in the Shop UI
     [SerializeField] private float _creditsTextFlashSpeed;  // Speed at which the credits text flashes red when unable to purchase upgrade
@@ -33,12 +33,14 @@ public class UIManager : MonoBehaviour
     [Header("Shop Items")]
     [SerializeField] private TMP_Text _CreditAmountText;    // Shop UI element display current credits
     [SerializeField] private TMP_Text _CreditText;          // Shop UI element display "Credits"
+    [SerializeField] private GameObject _ReadyButton;       // Button to mark the end of the "inifinite" first shop phase
+    [SerializeField] private GameObject _WarningMessage;    // Warning message when hovering the "Ready" button on first phase
 
     [Header("Time & wave")]
-    [SerializeField] private TMP_Text _Minutes;             // Amount of minutes since start of game
-    [SerializeField] private TMP_Text _Seconds;             // Amount of seconds since start of game
-    [SerializeField] private TMP_Text _Miliseconds;         // Amount of miliseconds since start of game
-    [SerializeField] private TMP_Text _WaveNumber;          // Number of the current wave
+    [SerializeField] private TMP_Text _Minutes;             // Amount of phase minutes since start of game
+    [SerializeField] private TMP_Text _Seconds;             // Amount of phase seconds since start of game
+    [SerializeField] private TMP_Text _Miliseconds;         // Amount of phase miliseconds since start of game
+    [SerializeField] private TMP_Text _WaveDisplay;         // Number of the current wave
 
     private bool _isShopDisplayed = false;
 
@@ -68,15 +70,15 @@ public class UIManager : MonoBehaviour
     }
 
     // Update time display
-    public void UpdateTime (int minutes, float seconds, float miliseconds)
+    public void UpdateTime (string minutes, string seconds, string miliseconds)
     {
-        _Minutes.text = minutes.ToString();
-        _Seconds.text = seconds.ToString();
-        _Miliseconds.text = miliseconds.ToString();
+        _Minutes.text = minutes;
+        _Seconds.text = seconds;
+        _Miliseconds.text = miliseconds;
     }
 
     // Update wave number display
-    public void UpdateWaveNumber (int number) => _WaveNumber.text = number.ToString();
+    public void UpdateWaveCounter (string wave) => _WaveDisplay.text = wave;
 
     // This region contains all functions called by UI elements (such as buttons)
     #region CALLBACKS
@@ -152,6 +154,15 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // Declare ready from first shop phase and disable button
+    public void DeclareReady () {
+        _ReadyButton.SetActive(false);
+        GameManager.GetInstance().DeclareReady();
+    }
+
+    // Toggle message on "Ready for Wave 1" button hover
+    public void ToggleWarningMessage () => _WarningMessage.SetActive(!_WarningMessage.activeSelf);
+
     #endregion CALLBACKS
 
     #region ANIMATIONS
@@ -180,7 +191,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Fade to black. Same logic as the Shield "Toggle" coroutine, but felt too convoluted to mix both together
-    public IEnumerator FadeScreenBlack (bool fadeIn, float speed)
+    public IEnumerator FadeBlackScreen (bool fadeIn, float speed)
     {
         float time = 0;
         Color currentColor = _BlackScreen.color;
@@ -242,14 +253,14 @@ public class UIManager : MonoBehaviour
         float time = 0;
         bool moveIn = !_isShopDisplayed;
 
-        Vector2 startPos = new Vector2(moveIn ? _xPosHidden : _xPosDisplay, _ShopUITransform.position.y);
-        Vector2 endPos = new Vector2(moveIn ? _xPosDisplay : _xPosHidden, _ShopUITransform.position.y);
+        Vector2 startPos = new Vector2(moveIn ? _xPosHidden : _xPosDisplay, _ShopUIPos.anchoredPosition.y);
+        Vector2 endPos = new Vector2(moveIn ? _xPosDisplay : _xPosHidden, _ShopUIPos.anchoredPosition.y);
         while (time < _shopAnimationSpeed) {
-            _ShopUITransform.position = Vector2.Lerp(startPos, endPos, time / _shopAnimationSpeed);
+            _ShopUIPos.anchoredPosition = Vector2.Lerp(startPos, endPos, time / _shopAnimationSpeed);
             time += Time.deltaTime;
             yield return null;
         }
-        _ShopUITransform.position = endPos;
+        _ShopUIPos.anchoredPosition = endPos;
         _isShopDisplayed = moveIn;
     }
 

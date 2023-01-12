@@ -9,6 +9,7 @@ public class DefenseOrb : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer _Sprite;    // Visual element of this weapon
+    [SerializeField] private float _spriteFadeInSpeed;  // Speed at which the sprite is rendered in when purchased
     [SerializeField] private GameObject _LaserPrefab;   // Laser prefab gameobject containing a line renderer
     [SerializeField] private Transform _FirePoint;      // The 2D point where the laser will originate
     [SerializeField] private float _laserFadeSpeed;     // Time before which the laser dissipates
@@ -64,7 +65,10 @@ public class DefenseOrb : MonoBehaviour
             _isActive = true;
 
             // Show the weapon (if it is not already shown)
-            _Sprite.enabled = true;
+            if (!_Sprite.enabled) {
+                _Sprite.enabled = true;
+                StartCoroutine(FadeSpriteIn(_spriteFadeInSpeed));
+            }
 
             _levelNb++;
 
@@ -188,6 +192,22 @@ public class DefenseOrb : MonoBehaviour
             yield return null;
         }
         Destroy(laser.gameObject);
+    }
+
+    // Fade in sprite when weapon first purchased
+    private IEnumerator FadeSpriteIn (float speed)
+    {
+        Color current = _Sprite.color;
+        float time = 0;
+        while (time < speed) {
+            current.a = Mathf.Lerp(0, 1, time / speed);
+            _Sprite.color = current;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+        current.a = 1;
+        _Sprite.color = current;
     }
 
     #endregion PRIVATE

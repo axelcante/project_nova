@@ -9,6 +9,7 @@ public class Pulsar : MonoBehaviour
 
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer _Sprite;    // Visual element of this weapon
+    [SerializeField] private float _spriteFadeInSpeed;  // Speed at which the sprite fades into view when purchased
     [SerializeField] private Animator _Animator;        // Animator will play "pulse" animation and update rotation speed
     [SerializeField] private float _fadeSpeed;          // Speed at which the weapon fades out (when game is over)
 
@@ -50,7 +51,8 @@ public class Pulsar : MonoBehaviour
     // Called once per frame
     private void Update ()
     {
-        if (_isActive) {
+        // Only fire when enemies are being spawned (not while in shop)
+        if (_isActive && GameManager.GetInstance().GetCurrentPhase() == GameManager.Phase.WAVE) {
             if (!_isPulsing)
                 StartCoroutine(Pulse());
         }
@@ -73,7 +75,10 @@ public class Pulsar : MonoBehaviour
             _isActive = true;
 
             // Show the weapon (if it is not already shown)
-            _Sprite.enabled = true;
+            if (!_Sprite.enabled) {
+                _Sprite.enabled = true;
+                StartCoroutine(FadeSpriteIn(_spriteFadeInSpeed));
+            }
 
             _levelNb++;
 
@@ -189,6 +194,22 @@ public class Pulsar : MonoBehaviour
         yield return new WaitForSeconds(_currentRechargeSpeed);
 
         _isPulsing = false;
+    }
+
+    // Fade in sprite when weapon first purchased
+    private IEnumerator FadeSpriteIn (float speed)
+    {
+        Color current = _Sprite.color;
+        float time = 0;
+        while (time < speed) {
+            current.a = Mathf.Lerp(0, 1, time / speed);
+            _Sprite.color = current;
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+        current.a = 1;
+        _Sprite.color = current;
     }
 
     #endregion PRIVATE
