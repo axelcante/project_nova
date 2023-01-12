@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,17 +15,24 @@ public class UIManager : MonoBehaviour
 
     [Header("Animations")]
     [Header("Flashes & Text")]
-    [SerializeField] private Image _BlackScreen;
-    [SerializeField] private TMP_Text _EndGameText;
-    [SerializeField] private Color _WhiteStart;
-    [SerializeField] private Color _WhiteEnd;
-    [SerializeField] private float _flashSpeed;
-    [SerializeField] private float _textFadeSpeed;
-    [Header("UI")]
-    [SerializeField] private Transform _ShopUITransform;
-    [SerializeField] private float _shopAnimationSpeed;
-    [SerializeField] private float _xPosHidden;
-    [SerializeField] private float _xPosDisplay;
+    [SerializeField] private Image _BlackScreen;            // A black image covering the whole screen
+    [SerializeField] private TMP_Text _EndGameText;         // Text to display when game is ended
+    [SerializeField] private float _textFadeSpeed;          // Speed at which the end game text fades in/out
+    [SerializeField] private Color _WhiteStart;             // Black image color when flashing white
+    [SerializeField] private Color _WhiteEnd;               // Black image color when flashing white
+    [SerializeField] private float _flashSpeed;             // Speed at which the screen flashes white
+    [Header("UI Items")]
+    [SerializeField] private Transform _ShopUITransform;    // Position of the Shop UI
+    [SerializeField] private Color _StartCreditsColor;      // Start color for the Credits text in the Shop UI
+    [SerializeField] private Color _EndCreditsColor;        // End color for the Credits text in the Shop UI
+    [SerializeField] private float _creditsTextFlashSpeed;  // Speed at which the credits text flashes red when unable to purchase upgrade
+    [SerializeField] private float _shopAnimationSpeed;     // Speed at which the Shop moves in/out of view
+    [SerializeField] private float _xPosHidden;             // X position to hide the Shop UI
+    [SerializeField] private float _xPosDisplay;            // X position to display the Shop UI
+
+    [Header("Shop Items")]
+    [SerializeField] private TMP_Text _CreditAmountText;    // Shop UI element display current credits
+    [SerializeField] private TMP_Text _CreditText;          // Shop UI element display "Credits"
 
     private bool _isShopDisplayed = false;
 
@@ -48,6 +54,90 @@ public class UIManager : MonoBehaviour
     #endregion UNITY
 
     #region PUBLIC
+
+    // Update current credits display
+    public void UpdateCredits (float amount)
+    {
+        _CreditAmountText.text = amount.ToString();
+    }
+
+    // This region contains all functions called by UI elements (such as buttons)
+    #region CALLBACKS
+
+    // Attempt to purchase an orb level (with an id to select the right orb in GameManager.cs)
+    // Unfortunately, you can't assign custom enums in the Unity editor, so I need one function for each Station.Element
+    public void AttemptPurchaseOrbLevel (int id)
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.DefenseOrb, id);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a complexity level (with an id to select the right orb in GameManager.cs)
+    public void AttemptPurchaseComplexityLevel (int id)
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.Complexity, id);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a pulsar level (with an id to select the right orb in GameManager.cs)
+    public void AttemptPurchasePulsarLevel (int id)
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.Pulsar, id);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a large shield level
+    public void AttemptPurchaseLShieldLevel ()
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.LargeShield);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a small shield level
+    public void AttemptPurchaseSShieldLevel ()
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.SmallShield);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a station level
+    public void AttemptPurchaseStationLevel ()
+    {
+        bool success = GameManager.GetInstance().AttemptUpgrade(Station.Element.StationHQ);
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    // Attempt to purchase a station repair
+    public void AttemptPurchaseStationRepair ()
+    {
+        bool success = GameManager.GetInstance().AttemptStationRepair();
+
+        if (!success) {
+            StartCoroutine(FlashCreditsText(_StartCreditsColor, _EndCreditsColor, _creditsTextFlashSpeed));
+        }
+    }
+
+    #endregion CALLBACKS
+
+    #region ANIMATIONS
 
     // Flashes screen white and then fades it back to normal
     public IEnumerator QuickFlash ()
@@ -102,6 +192,33 @@ public class UIManager : MonoBehaviour
         _EndGameText.color = currentColor;
     }
 
+    // Flash credits text red (when trying to purchase an item for which player does not have the credits for)
+    public IEnumerator FlashCreditsText (Color start, Color end, float speed)
+    {
+        float time = 0;
+        // Quick flash text red
+        while (time < speed) {
+            _CreditAmountText.color = Color.Lerp(start, end, time / (speed / 3));
+            _CreditText.color = Color.Lerp(start, end, time / (speed / 3));
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        time = 0;
+        // Quick flash text back to original color
+        while (time < speed) {
+            _CreditAmountText.color = Color.Lerp(end, start, time / speed);
+            _CreditText.color = Color.Lerp(end, start, time / speed);
+
+            time += Time.deltaTime;
+            yield return null;
+        }
+
+        _CreditAmountText.color = start;
+        _CreditText.color = start;
+    }
+
     // Moves the UI to the left of the screen or back into play
     public IEnumerator ToggleShop ()
     {
@@ -119,10 +236,11 @@ public class UIManager : MonoBehaviour
         _isShopDisplayed = moveIn;
     }
 
-    #endregion
+    #endregion ANIMATIONS
+    #endregion PUBLIC
 
     #region PRIVATE
 
-    #endregion
-    #endregion
+    #endregion PRIVATE
+    #endregion METHODS
 }

@@ -1,8 +1,7 @@
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-
-
+using UnityEngine.UI;
 
 public class Station : MonoBehaviour
 {
@@ -14,29 +13,42 @@ public class Station : MonoBehaviour
 
     #endregion SINGLETON DECLARATION
 
-    public enum StationElement
+    public enum Element
     {
         LargeShield,
         SmallShield,
-        StationHQ
+        StationHQ,
+        DefenseOrb,
+        Complexity,
+        Pulsar,
     }
 
     [Header("StationELements")]
-    [SerializeField] private Shield _LargeShield;
-    [SerializeField] private Shield _SmallShield;
+    [SerializeField] private Shield _LargeShield;       // Reference to the Large Shield defense
+    [SerializeField] private Shield _SmallShield;       // Reference to the Small Shield defense
 
     [Header("Animations")]
-    [SerializeField] private float _shieldFadeSpeed;
-    [SerializeField] private Animator _Animator;
-    [SerializeField] private float _flashTiming;
-    [SerializeField] private float _novaAnimationTime;
-    private bool _isRepairing = false;
-    private bool _isExploding = false;
-    private bool _isNova = false;
+    [SerializeField] private float _shieldFadeSpeed;    // Speed at which the shield fades when destroyed
+    [SerializeField] private Animator _Animator;        // Reference to the station animator (for explode sequence)
+    [SerializeField] private float _flashTiming;        // When the flash occurs (in station explode sequence)
+    [SerializeField] private float _novaAnimationTime;  // Max time to animate explosion nova on game end
+    
+    private bool _isRepairing = false;  // Keeps track of if the station is currently in the repair coroutine  
+    private bool _isExploding = false;  // Indicates that the explosion sequence has started
+    private bool _isNova = false;       // Indicates that the nova sequence has started
 
-    [Header("Health bar")]
-    [SerializeField] private HealthBar _HealthBar;
-    private float _stationHQHealth;
+    [Header("Health bar & repair")]
+    [SerializeField] private HealthBar _HealthBar;      // Reference to the UI Health bar
+    [SerializeField] private float _paidRepairAmount;   // Amount of health gained when purchasing a repair from the Shop
+    private float _stationHQHealth;                     // Current station health
+
+    [Header("UI Shop Elements")]
+    [SerializeField] private TMP_Text _PriceDisplay;    // Credit cost for upgrade
+    [SerializeField] private TMP_Text _CreditsDisplay;  // "Credits" text to be disabled on max level
+    [SerializeField] private TMP_Text _LevelDisplay;    // Current level UI display
+    [SerializeField] private Button _BuyButton;         // Shop button to buy an upgrade
+    [SerializeField] private Button _RepairButton;      // Shop button to repair station
+    [SerializeField] private TMP_Text _RepPriceDisplay; // Credit cost for repairing
 
     // Properties (can be leveled up)
     private int _levelNb = -1;              // Tracks the current upgrade level for this station
@@ -45,6 +57,8 @@ public class Station : MonoBehaviour
     private float _currentMaxHealth;        // Maximum possible health
     private float _currentRepairAmount;     // Amount of health gained for each health tick
     private float _currentRepairSpeed;      // Time before each health tick
+    private float _nextUpgradePrice;        // Amount of credits required to purchase next upgrade
+    private float _repairPrice;             // Amount of credits required to repair the station
 
     #endregion VARIABLES
 
@@ -65,6 +79,11 @@ public class Station : MonoBehaviour
     private void Start ()
     {
         _HealthBar.gameObject.SetActive(true);
+
+        // Only need to touch shop repair UI once
+        InitializeShopRepairUI();
+        
+        // Increase level by one (station starts level 1)
         IncreaseLevel();
     }
 
@@ -88,15 +107,16 @@ public class Station : MonoBehaviour
 
     #region PUBLIC
 
-    // Update station level
+    // Update station level (and disable UI element if max level)
     public void IncreaseLevel ()
     {
         if (!_isMaxLevel) {
             _levelNb++;
 
             // If we've reached max level, mark it so
-            if (_levelNb == Upgrades.GetInstance()._StationLevels.Count - 1)
+            if (_levelNb == Upgrades.GetInstance()._StationLevels.Count - 1) {
                 _isMaxLevel = true;
+            }
 
             if (Upgrades.GetInstance()._StationLevels.Count > 0 && _levelNb >= 0) {
                 _Level = Upgrades.GetInstance()._StationLevels[_levelNb];
@@ -106,18 +126,35 @@ public class Station : MonoBehaviour
             } else {
                 Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
             }
+        } else {
+            Debug.LogWarning("This station is already max level");
         }
     }
 
+    // Increase current health (repair)
+    public void RepairStation (float amount = -1)
+    {
+        // By default, when this function is called it heals for the paid amount
+        float calcAmount = amount < 0 ? _paidRepairAmount : amount;
+
+        if (_stationHQHealth + calcAmount > _currentMaxHealth)
+            _stationHQHealth = _currentMaxHealth;
+        else
+            _stationHQHealth += calcAmount;
+
+        // Update health UI
+        _HealthBar.UpdateHealth(_stationHQHealth);
+    }
+
     // Return true if a specific Station Element (shields) is active or not
-    public bool CheckElementState (StationElement el)
+    public bool CheckElementState (Element el)
     {
         switch (el) {
-            case StationElement.LargeShield:
+            case Element.LargeShield:
                 return _LargeShield.gameObject.activeSelf && _LargeShield.IsAlive();
-            case StationElement.SmallShield:
+            case Element.SmallShield:
                 return _SmallShield.gameObject.activeSelf && _SmallShield.IsAlive();
-            case StationElement.StationHQ:
+            case Element.StationHQ:
                 return gameObject.activeSelf;
             default:
                 Debug.LogWarning("Outside of StationElements enum case!");
@@ -126,18 +163,18 @@ public class Station : MonoBehaviour
     }
 
     // Handles collisions with enemies
-    public void HandleCollision (StationElement el, float damage)
+    public void HandleCollision (Element el, float damage)
     {
         switch (el) {
-            case StationElement.LargeShield:
+            case Element.LargeShield:
                 // Loose health & disable
                 _LargeShield.TakeDamange(damage);
                 break;
-            case StationElement.SmallShield:
+            case Element.SmallShield:
                 // Loose health & disable
                 _SmallShield.TakeDamange(damage);
                 break;
-            case StationElement.StationHQ:
+            case Element.StationHQ:
                 if (!_isExploding) {
                     // Loose health & end game
                     _stationHQHealth -= damage;
@@ -156,10 +193,26 @@ public class Station : MonoBehaviour
 
     // GETTERS
     public bool GetIsNova () => _isNova;
+    public bool IsMaxLevel () => _isMaxLevel;
+    public float GetUpgreadePrice () => _nextUpgradePrice;
+    public float GetRepairPrice () => _repairPrice;
 
     #endregion PUBLIC
 
     #region PRIVATE
+
+    // Update the repair price display (only done once)
+    private void InitializeShopRepairUI ()
+    {
+        float[] repPrices;
+
+        if (Upgrades.GetInstance()._Prices.TryGetValue(Upgrades.Type.REPAIR, out repPrices)) {
+            // There should only be one repair price!
+            _repairPrice = repPrices[0];
+            _RepPriceDisplay.text = _repairPrice.ToString();
+        } else
+            Debug.LogWarning("Couldn't find a repair price");
+    }
 
     // Update the station properties based on current upgrade level
     private void SetLevelProperties (Upgrades.StationLevel level)
@@ -175,18 +228,34 @@ public class Station : MonoBehaviour
         // Increase the UI max health & heal for difference
         _HealthBar.SetMaxHealth(_currentMaxHealth);
         RepairStation(healthDifference);
+
+        // Update Shop UI
+        SetLevelAndPriceUI();
     }
 
-    // Increase current health
-    private void RepairStation (float amount)
+    // Updates the Shop UI for this weapon's next level and price
+    // SHOULD BE INHERITED AAAARGH WON'T HAVE TIME TO REFACTOR
+    private void SetLevelAndPriceUI ()
     {
-        if (_stationHQHealth + amount > _currentMaxHealth)
-            _stationHQHealth = _currentMaxHealth;
-        else
-            _stationHQHealth += amount;
+        if (!_isMaxLevel) {
+            // Display the next level
+            _LevelDisplay.text = (_levelNb + 1).ToString();
 
-        // Update health UI
-        _HealthBar.UpdateHealth(_stationHQHealth);
+            // Update the price for the next upgrade
+            float[] prices;
+            if (Upgrades.GetInstance()._Prices.TryGetValue(Upgrades.Type.STATION, out prices)) {
+                _nextUpgradePrice = prices[_levelNb + 1];
+                _PriceDisplay.text = _nextUpgradePrice.ToString();
+            } else
+                Debug.LogWarning("Couldn't find a price for the given item's next upgrade");
+        } else {
+            // Max level; can't upgrade anymore
+            _LevelDisplay.text = "Max";
+            _BuyButton.interactable = false;
+            _PriceDisplay.gameObject.SetActive(false);
+            _CreditsDisplay.gameObject.SetActive(false);
+        }
+
     }
 
     // Regenerate health over time based on current repair speed

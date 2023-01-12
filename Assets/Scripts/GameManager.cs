@@ -15,29 +15,35 @@ public class GameManager : MonoBehaviour
     #endregion SINGLETON DECLARATION
 
     [Header("Animations")]
-    [SerializeField] private CinemachineImpulseSource _Impulse;
-    [SerializeField] private float _textFadeDelay;
-    [SerializeField] private float _weaponFadeSpeed;
+    [SerializeField] private CinemachineImpulseSource _Impulse; // Shakes the camera when the station explodes (and game ends)
+    [SerializeField] private float _textFadeDelay;              // End game text fade in/out
+    [SerializeField] private float _weaponFadeSpeed;            // Weapon sprites fade out when station expldoes
 
     [Header("Enemy Spawning")]
-    [SerializeField] private BoxCollider2D _SpawningArea;
-    [SerializeField] private GameObject _EnemyHierarchyContainer;
-    [SerializeField] private GameObject _EnemyPrefab;
-    [SerializeField] private int _numberOfEnemiesPerWave;
+    [SerializeField] private BoxCollider2D _SpawningArea;           // A rectangular 2D box along the edges of which enemies spawn
+    [SerializeField] private GameObject _EnemyHierarchyContainer;   // An empty GameObject holding all Enemy clones
+    [SerializeField] private GameObject _EnemyPrefab;               // The enemy prefab spawned
+    [SerializeField] private int _numberOfEnemiesPerWave;           // DEBUG - manually decide how many enemies spawn with Spacebar
+    [SerializeField] private float _timeBetweenPhases;              // The time between enemy phase and buy phase (10 SECONDS)
+    private List<Enemy> _Enemies = new List<Enemy>();               // List containing all enemies currently alive
     [Range(0f, 0.99f)]
-    public float sideSpawnWeight;
+    public float sideSpawnWeight;   // Increase chance to spawn on sides of screen (instead of on top or below)
 
     [Header("Weapons")]
-    [SerializeField] private GameObject _WeaponsContainer;
-    [SerializeField] private DefenseOrb[] _DefenseOrbs;
-    [SerializeField] private Complexity[] _Complexities;
-    [SerializeField] private Pulsar[] _Pulsars;
-    private List<Enemy> _Enemies = new List<Enemy>();
+    [SerializeField] private GameObject _WeaponsContainer;  // Container with all Station weapons
+    [SerializeField] private DefenseOrb[] _DefenseOrbs;     // Array of the Defense Orb weapons
+    [SerializeField] private Complexity[] _Complexities;    // Array of the Complexity weapons
+    [SerializeField] private Pulsar[] _Pulsars;             // Array of the Pulsar weapons
 
     [Header("Shields & Station")]
-    [SerializeField] private Shield _SmallShield;
-    [SerializeField] private Shield _LargeShield;
-    [SerializeField] private Station _Station;
+    [SerializeField] private Shield _SmallShield;           // Reference to the Small Shield
+    [SerializeField] private Shield _LargeShield;           // Reference to the Large Shield
+    [SerializeField] private Station _Station;              // Refernce to the Station
+
+    [Header("Credits")]
+    [SerializeField] private int _startingCreds;    // Amount of credits the player starts the game with
+    [SerializeField] private int _credsPerKill;     // Amount of credits gained per enemy destroyed
+    public float _currentCreds = 0;                // Current held credits by the player
 
     #endregion VARIABLES
 
@@ -54,24 +60,24 @@ public class GameManager : MonoBehaviour
         _instance = this;
     }
 
+    // Start is called just before the first frame in which this script is initialized, and after Awake
+    private void Start ()
+    {
+        // Initialize current credits
+        UpdateCredits(_startingCreds);
+    }
+
     // Update is called once per frame
     private void Update ()
     {
-        // DEBUG: Spawn enemies on space click (REMOVE)
+        // DEBUG: Spawn enemies on Spacebar press (REMOVE)
         if (Input.GetKeyDown(KeyCode.Space)) {
             StartCoroutine(SpawnNumberOfEnemies(_numberOfEnemiesPerWave));
         }
 
-        // DEBUG: Add DefenseOrb weapon on Q click (simulates upgrade) (REMOVE)
+        // DEBUG KEY (REMOVE)
         if (Input.GetKeyDown(KeyCode.Q)) {
-            //for (int i = 0; i < _DefenseOrbs.Length; i++) {
-            //    if (!_DefenseOrbs[i].gameObject.activeSelf) {
-            //        _DefenseOrbs[i].gameObject.SetActive(true);
-            //        break;
-            //    }
-            //}
             _Station.IncreaseLevel();
-            //StartCoroutine(UIManager.GetInstance().ToggleShop());
         }
     }
 
@@ -79,12 +85,95 @@ public class GameManager : MonoBehaviour
 
     #region PUBLIC
 
+    // All methods called by the UIManager.cs
+    #region UI CALLBACKS
+
+    // By giving a station element (defensive or weapon) + id, we can increase level on the correct gameobject
+    // Returns true if this was possible (enough CA$H MONEY)
+    public bool AttemptUpgrade (Station.Element item, int id = -1)
+    {
+        switch (item) {
+            case Station.Element.StationHQ:
+                // Have enough CA$H?
+                if (_currentCreds >= _Station.GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _Station.GetUpgreadePrice());
+                    _Station.IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            case Station.Element.SmallShield:
+                // Have enough CA$H?
+                if (_currentCreds >= _SmallShield.GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _SmallShield.GetUpgreadePrice());
+                    _SmallShield.IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            case Station.Element.LargeShield:
+                // Have enough CA$H?
+                if (_currentCreds >= _LargeShield.GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _LargeShield.GetUpgreadePrice());
+                    _LargeShield.IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            case Station.Element.DefenseOrb:
+                // Have enough CA$H?
+                if (_currentCreds >= _DefenseOrbs[id].GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _DefenseOrbs[id].GetUpgreadePrice());
+                    _DefenseOrbs[id].IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            case Station.Element.Complexity:
+                // Have enough CA$H?
+                if (_currentCreds >= _Complexities[id].GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _Complexities[id].GetUpgreadePrice());
+                    _Complexities[id].IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            case Station.Element.Pulsar:
+                // Have enough CA$H?
+                if (_currentCreds >= _Pulsars[id].GetUpgreadePrice()) {
+                    UpdateCredits(-1 * _Pulsars[id].GetUpgreadePrice());
+                    _Pulsars[id].IncreaseLevel();
+                    return true;
+                } else {
+                    return false;
+                }
+            default:
+                Debug.LogWarning("No corresponding Element");
+                return false;
+        }
+    }
+
+    // Attempt to pay for station to heal itself
+    public bool AttemptStationRepair ()
+    {
+        // Have enough CA$H?
+        if (_currentCreds >= _Station.GetRepairPrice()) {
+            UpdateCredits(-1 * _Station.GetRepairPrice());
+            _Station.RepairStation();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    #endregion UI CALLBACKS
+
     // Generates an impulse for our camera shake. Also hides and disables weapons
     public void GenerateImpulse ()
     {
         _Impulse.GenerateImpulse();
 
-        // Hide weapons and disable them
+        // Fade out weapons and disable them
         StartCoroutine(DeactiveAllWeapons());
     }
 
@@ -156,11 +245,17 @@ public class GameManager : MonoBehaviour
             return null;
     }
 
-    // Removes a enemy from the list (when they are destroyed)
+    // Removes a enemy from the list (when they are destroyed) and increase credits
     public void RemoveEnemy (Enemy enemy)
     {
         _Enemies.Remove(enemy);
+
+        // Increase credits! $$$$
+        UpdateCredits(_credsPerKill);
     }
+
+    // GETTERS
+    public float GetCurrentCreds () => _currentCreds;
 
     #endregion PUBLIC
 
@@ -218,6 +313,13 @@ public class GameManager : MonoBehaviour
                 // PS: I have no idea if this is useful, or works as expected
                 yield return null;
         }
+    }
+
+    // Update credits
+    private void UpdateCredits (float amount)
+    {
+        _currentCreds += amount;
+        UIManager.GetInstance().UpdateCredits(_currentCreds);
     }
 
     #endregion PRIVATE

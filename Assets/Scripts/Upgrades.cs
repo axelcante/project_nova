@@ -17,18 +17,22 @@ public class Upgrades : MonoBehaviour
     // This is to allow balancing directly through the Unity editor
     [Header("Defense Orbs")]
     [Header("Level 0")]
-    [SerializeField] private float _orb_RS_0;   // Time before laser can shoot again
-    [SerializeField] private int _orb_LPC_0;    // Number of lasers fired per charge
+    [SerializeField] private float _orb_cash_0;     // Price to pay to upgrade to this level
+    [SerializeField] private float _orb_RS_0;       // Time before laser can shoot again
+    [SerializeField] private int _orb_LPC_0;        // Number of lasers fired per charge
 
     [Header("Level 1")]
+    [SerializeField] private float _orb_cash_1;
     [SerializeField] private float _orb_RS_1;
     [SerializeField] private int _orb_LPC_1;
     
     [Header("Level 2")]
+    [SerializeField] private float _orb_cash_2;
     [SerializeField] private float _orb_RS_2;
     [SerializeField] private int _orb_LPC_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _orb_cash_3;
     [SerializeField] private float _orb_RS_3;
     [SerializeField] private int _orb_LPC_3;
 
@@ -42,18 +46,22 @@ public class Upgrades : MonoBehaviour
     [Space(10)]
     [Header("Complexities")]
     [Header("Level 0")]
-    [SerializeField] private float _comp_RS_0;  // Time before laserbeam shoots again
-    [SerializeField] private float _comp_LD_0;  // Time during which laser is active and shooting
+    [SerializeField] private float _comp_cash_0;    // Price to pay to upgrade to this level
+    [SerializeField] private float _comp_RS_0;      // Time before laserbeam shoots again
+    [SerializeField] private float _comp_LD_0;      // Time during which laser is active and shooting
 
     [Header("Level 1")]
+    [SerializeField] private float _comp_cash_1;
     [SerializeField] private float _comp_RS_1;  
     [SerializeField] private float _comp_LD_1;
 
     [Header("Level 2")]
+    [SerializeField] private float _comp_cash_2;
     [SerializeField] private float _comp_RS_2;
     [SerializeField] private float _comp_LD_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _comp_cash_3;
     [SerializeField] private float _comp_RS_3;
     [SerializeField] private float _comp_LD_3;
 
@@ -67,21 +75,25 @@ public class Upgrades : MonoBehaviour
     [Space(10)]
     [Header("Pulsar")]
     [Header("Level 0")]
+    [SerializeField] private float _puls_cash_0;    // Price to pay to upgrade to this level
     [SerializeField] private float _puls_RS_0;      // Time before pulsar pulses again
     [SerializeField] private float _puls_RoS_0;     // Speed at which pulsar rotates around the station (should've expected it...)
     [SerializeField] private float _puls_BR_0;      // Size of the pulse destroying enemies
 
     [Header("Level 1")]
+    [SerializeField] private float _puls_cash_1;
     [SerializeField] private float _puls_RS_1;
     [SerializeField] private float _puls_RoS_1;
     [SerializeField] private float _puls_BR_1;
 
     [Header("Level 2")]
+    [SerializeField] private float _puls_cash_2;
     [SerializeField] private float _puls_RS_2;
     [SerializeField] private float _puls_RoS_2;
     [SerializeField] private float _puls_BR_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _puls_cash_3;
     [SerializeField] private float _puls_RS_3;
     [SerializeField] private float _puls_RoS_3;
     [SerializeField] private float _puls_BR_3;
@@ -96,18 +108,22 @@ public class Upgrades : MonoBehaviour
     [Space(10)]
     [Header("Small shield")]
     [Header("Level 0")]
-    [SerializeField] private float _ss_mh_0;    // Shield's max health
-    [SerializeField] private float _ss_cd_0;    // Time before shield comes back up after being destroyed
+    [SerializeField] private float _ss_cash_0;      // Price to pay to upgrade to this level
+    [SerializeField] private float _ss_mh_0;        // Shield's max health
+    [SerializeField] private float _ss_cd_0;        // Time before shield comes back up after being destroyed
 
     [Header("Level 1")]
+    [SerializeField] private float _ss_cash_1;
     [SerializeField] private float _ss_mh_1;
     [SerializeField] private float _ss_cd_1;
 
     [Header("Level 2")]
+    [SerializeField] private float _ss_cash_2;
     [SerializeField] private float _ss_mh_2;
     [SerializeField] private float _ss_cd_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _ss_cash_3;
     [SerializeField] private float _ss_mh_3;
     [SerializeField] private float _ss_cd_3;
 
@@ -121,18 +137,22 @@ public class Upgrades : MonoBehaviour
     [Space(10)]
     [Header("Large shield")]
     [Header("Level 0")]
-    [SerializeField] private float _ls_mh_0;    // Shield's max health
-    [SerializeField] private float _ls_cd_0;    // Time before shield comes back up after being destroyed
+    [SerializeField] private float _ls_cash_0;      // Price to pay to upgrade to this level
+    [SerializeField] private float _ls_mh_0;        // Shield's max health
+    [SerializeField] private float _ls_cd_0;        // Time before shield comes back up after being destroyed
 
     [Header("Level 1")]
+    [SerializeField] private float _ls_cash_1;
     [SerializeField] private float _ls_mh_1;
     [SerializeField] private float _ls_cd_1;
 
     [Header("Level 2")]
+    [SerializeField] private float _ls_cash_2;
     [SerializeField] private float _ls_mh_2;
     [SerializeField] private float _ls_cd_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _ls_cash_3;
     [SerializeField] private float _ls_mh_3;
     [SerializeField] private float _ls_cd_3;
 
@@ -146,21 +166,26 @@ public class Upgrades : MonoBehaviour
     [Space(10)]
     [Header("Station")]
     [Header("Level 0")]
-    [SerializeField] private float _st_mh_0;    // Station's max health
-    [SerializeField] private float _st_ra_0;    // Station's health gained per repair tick
-    [SerializeField] private float _st_rs_0;    // Station's repair speed
+    [SerializeField] private float _st_cash_0;      // Price to pay to upgrade to this level
+    [SerializeField] private float _st_rep_0;       // Price to pay to repair 100 station health
+    [SerializeField] private float _st_mh_0;        // Station's max health
+    [SerializeField] private float _st_ra_0;        // Station's health gained per repair tick
+    [SerializeField] private float _st_rs_0;        // Station's repair speed
 
     [Header("Level 1")]
+    [SerializeField] private float _st_cash_1;
     [SerializeField] private float _st_mh_1;
     [SerializeField] private float _st_ra_1;
     [SerializeField] private float _st_rs_1;
 
     [Header("Level 2")]
+    [SerializeField] private float _st_cash_2;
     [SerializeField] private float _st_mh_2;
     [SerializeField] private float _st_ra_2;
     [SerializeField] private float _st_rs_2;
 
     [Header("Level 3")]
+    [SerializeField] private float _st_cash_3;
     [SerializeField] private float _st_mh_3;
     [SerializeField] private float _st_ra_3;
     [SerializeField] private float _st_rs_3;
@@ -250,6 +275,21 @@ public class Upgrades : MonoBehaviour
         }
     }
 
+    // Enum containing  upgrade prices
+    public enum Type
+    {
+        DEFENSEORB,
+        COMPLEXITY,
+        PULSAR,
+        S_SHIELD,
+        L_SHIELD,
+        STATION,
+        REPAIR
+    }
+
+    // List of all the prices for each upgrade of each type
+    public readonly Dictionary<Type, float[]> _Prices = new Dictionary<Type, float[]>();
+
     #endregion STRUCTURES
     #endregion VARIABLES
 
@@ -271,6 +311,9 @@ public class Upgrades : MonoBehaviour
     {
         // Initialize upgrade level structures
         InitializeUpgradeLevels();
+
+        // Initialize the _Prices dictionary for other scripts to refer too
+        InitializeUpgradePrices();
     }
 
     #endregion UNITY
@@ -347,6 +390,26 @@ public class Upgrades : MonoBehaviour
         _StationLevels.Add(_StationLevel2);
         _StationLevel3 = new StationLevel(_st_mh_3, _st_ra_3, _st_rs_3);
         _StationLevels.Add(_StationLevel3);
+    }
+
+    // Populate the _Prices Dictionary with all the prices for each upgrade of each type
+    private void InitializeUpgradePrices ()
+    {
+        float[] orbPrices = new float[] { _orb_cash_0, _orb_cash_1, _orb_cash_2, _orb_cash_3 };
+        _Prices.Add(Type.DEFENSEORB, orbPrices);
+        float[] compPrices = new float[] { _comp_cash_0, _comp_cash_1, _comp_cash_2, _comp_cash_3 };
+        _Prices.Add(Type.COMPLEXITY, compPrices);
+        float[] pulsPrices = new float[] { _puls_cash_0, _puls_cash_1, _puls_cash_2, _puls_cash_3 };
+        _Prices.Add(Type.PULSAR, pulsPrices);
+        float[] ssPrices = new float[] { _ss_cash_0, _ss_cash_1, _ss_cash_2, _ss_cash_3 };
+        _Prices.Add(Type.S_SHIELD, ssPrices);
+        float[] lsPrices = new float[] { _ls_cash_0, _ls_cash_1, _ls_cash_2, _ls_cash_3 };
+        _Prices.Add(Type.L_SHIELD, lsPrices);
+        float[] stPrices = new float[] { _st_cash_0, _st_cash_1, _st_cash_2, _st_cash_3 };
+        _Prices.Add(Type.STATION, stPrices);
+        // Repair is a bit particular, as there is only one price
+        float[] repairPrice = new float[] { _st_rep_0 };
+        _Prices.Add(Type.REPAIR, repairPrice);
     }
 
     #endregion METHODS

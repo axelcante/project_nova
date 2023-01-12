@@ -1,18 +1,28 @@
 using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class DefenseOrb : MonoBehaviour
 {
     #region VARIABLES
 
     [Header("Visuals")]
+    [SerializeField] private SpriteRenderer _Sprite;    // Visual element of this weapon
     [SerializeField] private GameObject _LaserPrefab;   // Laser prefab gameobject containing a line renderer
     [SerializeField] private Transform _FirePoint;      // The 2D point where the laser will originate
     [SerializeField] private float _laserFadeSpeed;     // Time before which the laser dissipates
     [SerializeField] private float _delayBetweenShot;   // Time between shots of a same charge
 
-    private bool _isFiring = false;     // Tracks if a fire coroutine is already running
+    [Header("UI Shop Elements")]
+    [SerializeField] private TMP_Text _PriceDisplay;    // Credit cost for upgrade
+    [SerializeField] private TMP_Text _CreditsDisplay;  // "Credits" text to be disabled on max level
+    [SerializeField] private TMP_Text _LevelDisplay;    // Current level UI display
+    [SerializeField] private Button _BuyButton;         // Shop button to buy an upgrade
+
+    private bool _isActive = false;         // By default, a weapon is inactive at start of the game
+    private bool _isFiring = false;         // Tracks if a fire coroutine is already running
+    private bool _isEnemyPhase = false;     // Tracks if weapon systems should be online (enemies present)
 
     // Properties (updated by level)
     private int _levelNb = -1;                  // Tracks the current upgrade level for this weapon
@@ -20,6 +30,7 @@ public class DefenseOrb : MonoBehaviour
     private Upgrades.DefenseOrbLevel _Level;    // Holds a reference to the current weapon level
     private float _currentRechargeSpeed;        // Time before laser can shoot again
     private int _currentLasersPerCharge;        // Number of lasers fired per charge
+    private float _nextUpgradePrice;            // Amount of credits required to purchase next upgrade
 
     #endregion VARIABLES
 
@@ -29,15 +40,17 @@ public class DefenseOrb : MonoBehaviour
     // Called before the first frame when this object is set to active
     private void Start ()
     {
-        // Increase the level by one (starts at -1) at the start of this object's lifetime
-        IncreaseLevel();
+        // Initialize the Shop UI
+        SetLevelAndPriceUI();
     }
 
     // Called once per frame
     private void Update ()
     {
-        if (!_isFiring)
-            StartCoroutine(Fire());
+        if (_isActive) {
+            if (!_isFiring)
+                StartCoroutine(Fire());
+        }
     }
 
     #endregion UNITY
@@ -48,6 +61,11 @@ public class DefenseOrb : MonoBehaviour
     public void IncreaseLevel ()
     {
         if (!_isMaxLevel) {
+            _isActive = true;
+
+            // Show the weapon (if it is not already shown)
+            _Sprite.enabled = true;
+
             _levelNb++;
 
             // If we've reached max level, mark it so
@@ -62,6 +80,8 @@ public class DefenseOrb : MonoBehaviour
             } else {
                 Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
             }
+        } else {
+            Debug.LogWarning("This weapon is already max level!");
         }
     }
 
@@ -76,6 +96,11 @@ public class DefenseOrb : MonoBehaviour
 
     // GETTERS
     public bool IsMaxLevel () => _isMaxLevel;
+    public bool IsEnemyPhase () => _isEnemyPhase;
+    public float GetUpgreadePrice () => _nextUpgradePrice;
+
+    // SETTERS
+    public void SetIsEnemyPhase (bool isEnemyPhase) => _isEnemyPhase = isEnemyPhase;
 
     #endregion PUBLIC
 
@@ -86,6 +111,33 @@ public class DefenseOrb : MonoBehaviour
     {
         _currentRechargeSpeed = level._rechargeSpeed;
         _currentLasersPerCharge = level._lasersPerCharge;
+
+        SetLevelAndPriceUI();
+    }
+
+    // Updates the Shop UI for this weapon's next level and price
+    // SHOULD BE INHERITED AAAARGH WON'T HAVE TIME TO REFACTOR
+    private void SetLevelAndPriceUI ()
+    {
+        if (!_isMaxLevel) {
+            // Display the next level
+            _LevelDisplay.text = (_levelNb + 1).ToString();
+
+            // Update the price for the next upgrade
+            float[] prices;
+            if (Upgrades.GetInstance()._Prices.TryGetValue(Upgrades.Type.DEFENSEORB, out prices)) {
+                _nextUpgradePrice = prices[_levelNb + 1];
+                _PriceDisplay.text = _nextUpgradePrice.ToString();
+            } else
+                Debug.LogWarning("Couldn't find a price for the given item's next upgrade");
+        } else {
+            // Max level; can't upgrade anymore
+            _LevelDisplay.text = "Max";
+            _BuyButton.interactable = false;
+            _PriceDisplay.gameObject.SetActive(false);
+            _CreditsDisplay.gameObject.SetActive(false);
+        }
+
     }
 
     // Fires at the first enemy sighted

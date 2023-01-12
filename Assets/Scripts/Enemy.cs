@@ -113,25 +113,25 @@ public class Enemy : MonoBehaviour
         }
 
         // If Large Shield is active and alive, destroy when distance = _largeShieldDistance
-        if (Station.GetInstance().CheckElementState(Station.StationElement.LargeShield)) {
+        if (Station.GetInstance().CheckElementState(Station.Element.LargeShield)) {
             if (_largeShieldDistance - _collisionOffset < _distance && _distance < _largeShieldDistance) {
                 // Two comparisions because if the shield reactivates once an enemy has passed it, we don't want to delete them
-                Station.GetInstance().HandleCollision(Station.StationElement.LargeShield, _damage);
+                Station.GetInstance().HandleCollision(Station.Element.LargeShield, _damage);
                 StartCoroutine(Explode());
             }
         }
 
         // If Small Shield is active and alive, destroy when distance = _smallShieldDistance
-        if (Station.GetInstance().CheckElementState(Station.StationElement.SmallShield)) {
+        if (Station.GetInstance().CheckElementState(Station.Element.SmallShield)) {
             if (_smallShieldDistance - _collisionOffset < _distance && _distance < _smallShieldDistance) {
-                Station.GetInstance().HandleCollision(Station.StationElement.SmallShield, _damage);
+                Station.GetInstance().HandleCollision(Station.Element.SmallShield, _damage);
                 StartCoroutine(Explode());
             }
         }
 
         // No matter what, destroy when distance < _stationHQDistance
         if (_distance < _stationHQDistance) {
-            Station.GetInstance().HandleCollision(Station.StationElement.StationHQ, _damage);
+            Station.GetInstance().HandleCollision(Station.Element.StationHQ, _damage);
             StartCoroutine(Explode());
         }
     }
