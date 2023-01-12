@@ -94,15 +94,6 @@ public class Station : MonoBehaviour
             StartCoroutine(RepairOverTime());
     }
 
-    //// Update is called once per frame
-    //private void Update ()
-    //{
-    //    // DEBUG - REMOVE
-    //    if (Input.GetKeyDown(KeyCode.F)) {
-    //        StartCoroutine(StationExplode());
-    //    }
-    //}
-
     #endregion UNITY
 
     #region PUBLIC
@@ -269,9 +260,28 @@ public class Station : MonoBehaviour
         _isRepairing = false;
     }
 
+    // Calculate damage taken
+    private void TakeDamage (float damage)
+    {
+        if (!_isExploding) {
+            // Loose health
+            _stationHQHealth -= damage;
+            _HealthBar.UpdateHealth(_stationHQHealth);
+
+            // DED? XPLODE
+            if (_stationHQHealth <= 0) {
+                _isExploding = true;
+                StartCoroutine(StationExplode());
+            }
+        }
+    }
+
     // NOW I AM BECOME DEATH, THE DESTROYER OF WORLDS
     private IEnumerator StationExplode ()
     {
+        // Tell the GameManager.cs to stop the play loop
+        GameManager.GetInstance().SetGameOverState();
+
         // Deactivate both shields and stop them from recharging (way too late for that now!)
         if (_LargeShield.gameObject.activeSelf)
             _LargeShield.StationDown();

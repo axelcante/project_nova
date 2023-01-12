@@ -34,6 +34,12 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text _CreditAmountText;    // Shop UI element display current credits
     [SerializeField] private TMP_Text _CreditText;          // Shop UI element display "Credits"
 
+    [Header("Time & wave")]
+    [SerializeField] private TMP_Text _Minutes;             // Amount of minutes since start of game
+    [SerializeField] private TMP_Text _Seconds;             // Amount of seconds since start of game
+    [SerializeField] private TMP_Text _Miliseconds;         // Amount of miliseconds since start of game
+    [SerializeField] private TMP_Text _WaveNumber;          // Number of the current wave
+
     private bool _isShopDisplayed = false;
 
     #endregion VARIABLES
@@ -60,6 +66,17 @@ public class UIManager : MonoBehaviour
     {
         _CreditAmountText.text = amount.ToString();
     }
+
+    // Update time display
+    public void UpdateTime (int minutes, float seconds, float miliseconds)
+    {
+        _Minutes.text = minutes.ToString();
+        _Seconds.text = seconds.ToString();
+        _Miliseconds.text = miliseconds.ToString();
+    }
+
+    // Update wave number display
+    public void UpdateWaveNumber (int number) => _WaveNumber.text = number.ToString();
 
     // This region contains all functions called by UI elements (such as buttons)
     #region CALLBACKS
@@ -163,17 +180,17 @@ public class UIManager : MonoBehaviour
     }
 
     // Fade to black. Same logic as the Shield "Toggle" coroutine, but felt too convoluted to mix both together
-    public IEnumerator FadeToBlack (float speed)
+    public IEnumerator FadeScreenBlack (bool fadeIn, float speed)
     {
         float time = 0;
         Color currentColor = _BlackScreen.color;
         while (time < speed) {
-            currentColor.a = Mathf.Lerp(0, 1, time / speed);
+            currentColor.a = Mathf.Lerp(fadeIn ? 0 : 1, fadeIn ? 1 : 0, time / speed);
             _BlackScreen.color = currentColor;
             time += Time.deltaTime;
             yield return null;
         }
-        currentColor.a = 1;
+        currentColor.a = fadeIn ? 1 : 0;
         _BlackScreen.color = currentColor;
     }
 

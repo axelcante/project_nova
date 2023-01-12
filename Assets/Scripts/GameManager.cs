@@ -14,20 +14,31 @@ public class GameManager : MonoBehaviour
 
     #endregion SINGLETON DECLARATION
 
-    [Header("Animations")]
-    [SerializeField] private CinemachineImpulseSource _Impulse; // Shakes the camera when the station explodes (and game ends)
-    [SerializeField] private float _textFadeDelay;              // End game text fade in/out
-    [SerializeField] private float _weaponFadeSpeed;            // Weapon sprites fade out when station expldoes
+    // Used to mark which phase the game is currently in
+    public enum Phase
+    {
+        WAVE,
+        SHOP,
+        DEAD
+    }
+
+    [Header("Game loop flow")]
+    [SerializeField] private float _timeBetweenPhases;  // The time between enemy phase and buy phase
+    [SerializeField] private float _spawnPhaseLength;   // Time during which enemies spawn (10 SECONDS)
+    [SerializeField] private float _shopPhaseLength;    // Time during which the player can buy new upgrades (10 SECONDS)
+    private float _timeElapsed;                         // Total amount of played time since the game started (not counting pauses between phases)
+    private Phase _currentPhase;                        // Tracks which phase the game is currently in
+    private Coroutine _PlayCoroutine;                   // Keeps track of the PlayGame coroutine, to stop it if game is over
 
     [Header("Enemy Spawning")]
     [SerializeField] private BoxCollider2D _SpawningArea;           // A rectangular 2D box along the edges of which enemies spawn
     [SerializeField] private GameObject _EnemyHierarchyContainer;   // An empty GameObject holding all Enemy clones
     [SerializeField] private GameObject _EnemyPrefab;               // The enemy prefab spawned
-    [SerializeField] private int _numberOfEnemiesPerWave;           // DEBUG - manually decide how many enemies spawn with Spacebar
-    [SerializeField] private float _timeBetweenPhases;              // The time between enemy phase and buy phase (10 SECONDS)
+    [SerializeField] private int _enemiesToSpawnPerSecond;          // How many enemies to spawn per second of the Wave phase
+    private int _waveCounter;                                       // How many waves of enemies have been spawned since game start
     private List<Enemy> _Enemies = new List<Enemy>();               // List containing all enemies currently alive
-    [Range(0f, 0.99f)]
-    public float sideSpawnWeight;   // Increase chance to spawn on sides of screen (instead of on top or below)
+    [Range(0f, 0.99f)] public readonly float sideSpawnWeight;       // Increase chance to spawn on sides of screen (instead of on top or below)
+    private bool _enemiesInPlay = false;                            // Checks if there are enemies in the game
 
     [Header("Weapons")]
     [SerializeField] private GameObject _WeaponsContainer;  // Container with all Station weapons
@@ -44,6 +55,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _startingCreds;    // Amount of credits the player starts the game with
     [SerializeField] private int _credsPerKill;     // Amount of credits gained per enemy destroyed
     public float _currentCreds = 0;                // Current held credits by the player
+
+    [Header("Animations")]
+    [SerializeField] private CinemachineImpulseSource _Impulse; // Shakes the camera when the station explodes (and game ends)
+    [SerializeField] private float _blackScreenFadeSpeed;       // Speed at which the black screen covering the screen fades in/out
+    [SerializeField] private float _textFadeDelay;              // End game text fade in/out
+    [SerializeField] private float _weaponFadeSpeed;            // Weapon sprites fade out when station expldoes
 
     #endregion VARIABLES
 
@@ -65,14 +82,21 @@ public class GameManager : MonoBehaviour
     {
         // Initialize current credits
         UpdateCredits(_startingCreds);
+
+        // Start the game!
+        _PlayCoroutine = StartCoroutine(PlayGameLoop());
     }
 
     // Update is called once per frame
     private void Update ()
     {
+        // If the station died on this frame, stop the Play coroutine from continuing
+        if (_currentPhase == Phase.DEAD)
+            StopCoroutine(_PlayCoroutine);
+
         // DEBUG: Spawn enemies on Spacebar press (REMOVE)
         if (Input.GetKeyDown(KeyCode.Space)) {
-            StartCoroutine(SpawnNumberOfEnemies(_numberOfEnemiesPerWave));
+            StartCoroutine(SpawnNumberOfEnemies(_enemiesToSpawnPerSecond));
         }
 
         // DEBUG KEY (REMOVE)
@@ -168,6 +192,9 @@ public class GameManager : MonoBehaviour
 
     #endregion UI CALLBACKS
 
+    // Set the current game state to DEAD
+    public void SetGameOverState () => _currentPhase = Phase.DEAD;
+
     // Generates an impulse for our camera shake. Also hides and disables weapons
     public void GenerateImpulse ()
     {
@@ -252,14 +279,61 @@ public class GameManager : MonoBehaviour
 
         // Increase credits! $$$$
         UpdateCredits(_credsPerKill);
+
+        // Check if there are more enemies in play
+        // COULD BE PERFORMANCE ISSUE HERE
+        if (_Enemies.Count == 0)
+            _enemiesInPlay = false;
     }
 
     // GETTERS
     public float GetCurrentCreds () => _currentCreds;
+    public Phase GetCurrentPhase () => _currentPhase;
 
     #endregion PUBLIC
 
     #region PRIVATE
+
+    // THE GAME LOOP
+    // This coroutine is crucial as it manages the flow between phases
+    private IEnumerator PlayGameLoop ()
+    {
+        // Fade from black to transition from main menu fade
+        yield return UIManager.GetInstance().FadeScreenBlack(false, _blackScreenFadeSpeed);
+
+        // On game start, don't spawn enemies right from the start!
+        yield return new WaitForSeconds(_timeBetweenPhases);
+
+        // As long as the player/station is not destroyed
+        while (_currentPhase != Phase.DEAD) {
+            switch (_currentPhase) {
+                case Phase.WAVE:
+                    // Spawn enemies over the duration of the phase (10 SECONDS)
+                    StartCoroutine(SpawnNumberOfEnemies(_enemiesToSpawnPerSecond));
+                    yield return new WaitForSeconds(_spawnPhaseLength);
+
+                    // As long as there are still enemies in play, don't move to new phase
+                    // Check every second -- Bad practice?
+                    while (_enemiesInPlay)
+                        yield return new WaitForSeconds(1);
+
+                    // Pause the game before next phase
+                    yield return new WaitForSeconds(_timeBetweenPhases);
+                    break;
+                case Phase.SHOP:
+                    // Display the shop for _shopPhaseLength (10 SECONDS)
+                    UIManager.GetInstance().ToggleShop();
+                    yield return new WaitForSeconds(_shopPhaseLength);
+                    UIManager.GetInstance().ToggleShop();
+
+                    // Pause the game before next phase
+                    yield return new WaitForSeconds(_timeBetweenPhases);
+                    break;
+            }
+        }
+
+        // PLAYER DEAD -- END GAME?
+    }
 
     // Select a random point along the edges of a 2D Capsule Collider, just outside of camera range
     private void SpawnEnemy ()
@@ -303,6 +377,8 @@ public class GameManager : MonoBehaviour
     // Spawn enemy waves. Used Coroutine to try and reduce computational load per frame
     private IEnumerator SpawnNumberOfEnemies (int amount)
     {
+        _enemiesInPlay = true;
+
         int count = 1;
         while (count <= amount) {
             SpawnEnemy();
