@@ -77,25 +77,25 @@ public class Upgrades : MonoBehaviour
     [Header("Level 0")]
     [SerializeField] private float _puls_cash_0;    // Price to pay to upgrade to this level
     [SerializeField] private float _puls_RS_0;      // Time before pulsar pulses again
-    [SerializeField] private float _puls_RoS_0;     // Speed at which pulsar rotates around the station (should've expected it...)
+    //[SerializeField] private float _puls_RoS_0;   // Speed at which pulsar rotates around the station (should've expected it...)
     [SerializeField] private float _puls_BR_0;      // Size of the pulse destroying enemies
 
     [Header("Level 1")]
     [SerializeField] private float _puls_cash_1;
     [SerializeField] private float _puls_RS_1;
-    [SerializeField] private float _puls_RoS_1;
+    //[SerializeField] private float _puls_RoS_1;
     [SerializeField] private float _puls_BR_1;
 
     [Header("Level 2")]
     [SerializeField] private float _puls_cash_2;
     [SerializeField] private float _puls_RS_2;
-    [SerializeField] private float _puls_RoS_2;
+    //[SerializeField] private float _puls_RoS_2;
     [SerializeField] private float _puls_BR_2;
 
     [Header("Level 3")]
     [SerializeField] private float _puls_cash_3;
     [SerializeField] private float _puls_RS_3;
-    [SerializeField] private float _puls_RoS_3;
+    //[SerializeField] private float _puls_RoS_3;
     [SerializeField] private float _puls_BR_3;
 
     // These hold references to the corresponding level structures
@@ -233,14 +233,15 @@ public class Upgrades : MonoBehaviour
     public struct PulsarLevel
     {
         public readonly float _rechargeSpeed;       // Time before laser can shoot again
-        public readonly float _rotationSpeed;       // Speed at which the pulsar rotates around the station
+        //public readonly float _rotationSpeed;     // Speed at which the pulsar rotates around the station
         public readonly float _blastRadius;         // Radius of the pulse destroying enemies
 
         // Constructor
-        public PulsarLevel (float recSpeed, float rotSpeed, float blast)
+        //public PulsarLevel (float recSpeed, float rotSpeed, float blast)
+        public PulsarLevel (float recSpeed, float blast)
         {
             _rechargeSpeed = recSpeed;
-            _rotationSpeed = rotSpeed;
+            //_rotationSpeed = rotSpeed;
             _blastRadius = blast;
         }
     }
@@ -352,13 +353,17 @@ public class Upgrades : MonoBehaviour
         _ComplexityLevels.Add(_ComplexityLevel3);
 
         // Pulsar
-        _PulsarLevel0 = new PulsarLevel(_puls_RS_0, _puls_RoS_0, _puls_BR_0);
+        //_PulsarLevel0 = new PulsarLevel(_puls_RS_0, _puls_RoS_0, _puls_BR_0);
+        _PulsarLevel0 = new PulsarLevel(_puls_RS_0, _puls_BR_0);
         _PulsarLevels.Add(_PulsarLevel0);
-        _PulsarLevel1 = new PulsarLevel(_puls_RS_1, _puls_RoS_1, _puls_BR_1);
+        //_PulsarLevel1 = new PulsarLevel(_puls_RS_1, _puls_RoS_1, _puls_BR_1);
+        _PulsarLevel1 = new PulsarLevel(_puls_RS_1, _puls_BR_1);
         _PulsarLevels.Add(_PulsarLevel1);
-        _PulsarLevel2 = new PulsarLevel(_puls_RS_2, _puls_RoS_2, _puls_BR_2);
+        //_PulsarLevel2 = new PulsarLevel(_puls_RS_2, _puls_RoS_2, _puls_BR_2);
+        _PulsarLevel2 = new PulsarLevel(_puls_RS_2, _puls_BR_2);
         _PulsarLevels.Add(_PulsarLevel2);
-        _PulsarLevel3 = new PulsarLevel(_puls_RS_3, _puls_RoS_3, _puls_BR_3);
+        //_PulsarLevel3 = new PulsarLevel(_puls_RS_3, _puls_RoS_3, _puls_BR_3);
+        _PulsarLevel3 = new PulsarLevel(_puls_RS_3, _puls_BR_3);
         _PulsarLevels.Add(_PulsarLevel3);
 
         // Small shield

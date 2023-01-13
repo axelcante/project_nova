@@ -31,8 +31,8 @@ public class Pulsar : MonoBehaviour
     private int _levelNb = -1;              // Tracks the current upgrade level for this weapon
     private bool _isMaxLevel = false;       // Checks if this weapon can still be upgraded
     private Upgrades.PulsarLevel _Level;    // Holds a reference to the current weapon level
-    private float _currentRechargeSpeed;    // Time before laser can shoot again
-    private float _currentRotationSpeed;    // Number of lasers fired per charge
+    private float _currentRechargeSpeed;    // Time before pulsar can shoot again
+    //private float _currentRotationSpeed;  // REMOVED FOR BALANCING
     private float _currentBlastRadius;      // The radius of the OverlapCircleAll method used to detect colliders
     private float _nextUpgradePrice;        // Amount of credits required to purchase next upgrade
 
@@ -124,11 +124,12 @@ public class Pulsar : MonoBehaviour
     private void SetLevelProperties (Upgrades.PulsarLevel level)
     {
         _currentRechargeSpeed = level._rechargeSpeed;
-        _currentRotationSpeed = level._rotationSpeed;
+        //_currentRotationSpeed = level._rotationSpeed;
         _currentBlastRadius = level._blastRadius;
 
         // For _rotationSpeed to work, we need to update Animator playback speed multiplier
-        _Animator.SetFloat("RotationSpeed", _currentRotationSpeed);
+        // DISABLED FOR BALANCING
+        //_Animator.SetFloat("RotationSpeed", _currentRotationSpeed);
 
         SetLevelAndPriceUI();
     }

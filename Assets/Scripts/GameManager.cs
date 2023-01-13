@@ -18,8 +18,8 @@ public class GameManager : MonoBehaviour
     // Used to mark which phase the game is currently in
     public enum Phase
     {
-        WAVE,
         SHOP,
+        WAVE,
         DEAD
     }
 
@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _EnemyHierarchyContainer;       // An empty GameObject holding all Enemy clones
     [SerializeField] private GameObject _EnemyPrefab;                   // The enemy prefab spawned
     [SerializeField] private int _enemiesToSpawnPerSecond;              // How many enemies to spawn per second of the Wave phase
+    [SerializeField] private int _fixedSpawnIncrease;                   // A fixed number of additional enemies per wave
     [SerializeField] [Range(0, 1f)] private float _spawnIncreaseRate;   // Percentage increase to enemy spawn rate
     private int _waveCounter = 0;                                       // How many waves of enemies have been spawned since game start
     private List<Enemy> _Enemies = new List<Enemy>();                   // List containing all enemies currently alive
@@ -104,9 +105,39 @@ public class GameManager : MonoBehaviour
         //}
 
         // DEBUG KEY (REMOVE)
-        //if (Input.GetKeyDown(KeyCode.Q)) {
-        //    UIManager.GetInstance().ToggleShop();
-        //}
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            //UIManager.GetInstance().ToggleShop();
+            bool couldUpgrade = true;
+            while (couldUpgrade) {
+                int i = 0;
+                couldUpgrade = AttemptUpgrade(Station.Element.DefenseOrb, i);
+                i++;
+            }
+            couldUpgrade = true;
+            while (couldUpgrade) {
+                int i = 0;
+                couldUpgrade = AttemptUpgrade(Station.Element.Complexity, i);
+                i++;
+            }
+            couldUpgrade = true;
+            while (couldUpgrade) {
+                int i = 0;
+                couldUpgrade = AttemptUpgrade(Station.Element.Pulsar, i);
+                i++;
+            }
+            couldUpgrade = true;
+            while (couldUpgrade) {
+                couldUpgrade = AttemptUpgrade(Station.Element.LargeShield);
+            }
+            couldUpgrade = true;
+            while (couldUpgrade) {
+                couldUpgrade = AttemptUpgrade(Station.Element.SmallShield);
+            }
+            couldUpgrade = true;
+            while (couldUpgrade) {
+                couldUpgrade = AttemptUpgrade(Station.Element.StationHQ);
+            }
+        }
     }
 
     #endregion UNITY
@@ -323,6 +354,9 @@ public class GameManager : MonoBehaviour
         // Pause the game before next phase
         yield return new WaitForSeconds(_timeBetweenPhases);
 
+        // First phase in the loop - WAVE
+        _currentPhase = Phase.WAVE;
+
 
         // As long as the player/station is not destroyed ==> GAME LOOP
         while (_currentPhase != Phase.DEAD) {
@@ -375,7 +409,8 @@ public class GameManager : MonoBehaviour
     // Increase the amount of enemies per wave over time
     private void IncreaseSpawnRate ()
     {
-        float newSpawnRate = _enemiesToSpawnPerSecond * (1 + _spawnIncreaseRate);
+        float newSpawnRate = _enemiesToSpawnPerSecond;
+        newSpawnRate += _fixedSpawnIncrease * (1 + UnityEngine.Random.Range(0, _spawnIncreaseRate));
         _enemiesToSpawnPerSecond = Mathf.RoundToInt(newSpawnRate);
     }
 

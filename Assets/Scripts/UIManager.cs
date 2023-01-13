@@ -34,7 +34,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text _CreditAmountText;    // Shop UI element display current credits
     [SerializeField] private TMP_Text _CreditText;          // Shop UI element display "Credits"
     [SerializeField] private GameObject _ReadyButton;       // Button to mark the end of the "inifinite" first shop phase
-    [SerializeField] private GameObject _WarningMessage;    // Warning message when hovering the "Ready" button on first phase
+    [SerializeField] private GameObject[] _Tooltips;        // Collection of tooltip messages when hovering over buttons
 
     [Header("Time & wave")]
     [SerializeField] private TMP_Text _Minutes;             // Amount of phase minutes since start of game
@@ -160,8 +160,8 @@ public class UIManager : MonoBehaviour
         GameManager.GetInstance().DeclareReady();
     }
 
-    // Toggle message on "Ready for Wave 1" button hover
-    public void ToggleWarningMessage () => _WarningMessage.SetActive(!_WarningMessage.activeSelf);
+    // Toggle corresponding tooltip on hover
+    public void ToggleTooltip (int id) => _Tooltips[id].SetActive(!_Tooltips[id].activeSelf);
 
     #endregion CALLBACKS
 
