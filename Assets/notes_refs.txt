@@ -6,9 +6,17 @@ neon blue 3: 00FAFF
 neon blue Dark: 007E5F
 neon orange: FF7800
 neon yellow 1: FFF100
+neon yellow dark: 726B00
 neon red 1: FF0016
 neon pink 1: FF00D9
 neon purple: 8600FF
 
 images
 Image by Azyrit from Pixabay (space background)
+Kenney - Circle sprites / Explosion sprites
+
+music
+Drone space -- Music by Daddy_s_Music from Pixabay
+Neural State Metaphysical -- Music by Ambient_Nature_Atmosphere from Pixabay
+Intergalactic Oceans Meditation -- Music by NaturesEye from Pixabay
+Space violin -- Music by JoshuaHudesMusic from Pixabay

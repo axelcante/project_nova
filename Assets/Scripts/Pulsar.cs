@@ -92,7 +92,7 @@ public class Pulsar : MonoBehaviour
                 // Set current properties based on this level
                 SetLevelProperties(_Level);
             } else {
-                Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
+                Debug.LogWarning("Either there are no levels specified for this weapon, or current level is below 0");
             }
         } else {
             Debug.LogWarning("This weapon is already max level");
@@ -172,12 +172,12 @@ public class Pulsar : MonoBehaviour
         }
 
         // DEBUG: Draw overlap area
-        for (int i = 0; i <= 360; i++) {
-            float angle = i;
-            Vector3 pointA = new Vector3(transform.position.x + _currentBlastRadius * Mathf.Sin(angle), transform.position.y + _currentBlastRadius * Mathf.Cos(angle), 0);
-            Vector3 pointB = new Vector3(transform.position.x + _currentBlastRadius * Mathf.Sin(angle + 1), transform.position.y + _currentBlastRadius * Mathf.Cos(angle + 1), 0);
-            Debug.DrawLine(pointA, pointB, Color.red);
-        }
+        //for (int i = 0; i <= 360; i++) {
+        //    float angle = i;
+        //    Vector3 pointA = new Vector3(transform.position.x + _currentBlastRadius * Mathf.Sin(angle), transform.position.y + _currentBlastRadius * Mathf.Cos(angle), 0);
+        //    Vector3 pointB = new Vector3(transform.position.x + _currentBlastRadius * Mathf.Sin(angle + 1), transform.position.y + _currentBlastRadius * Mathf.Cos(angle + 1), 0);
+        //    Debug.DrawLine(pointA, pointB, Color.red);
+        //}
     }
 
     // Emit a pulse that destroys enemy in range

@@ -234,7 +234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _health: 100
   _damage: 10
-  minSpeed: 0.3
+  minSpeed: 0.1
   maxSpeed: 1.1
   gravityFactor: 0.8
   _largeShieldDistance: 3.5

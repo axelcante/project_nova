@@ -12,6 +12,12 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private float _fadeSpeed;
     [SerializeField] private Button[] _UIButtons;
 
+    [Header("UI Blocks")]
+    [SerializeField] private GameObject _MissionBlock;
+    [SerializeField] private GameObject _MentionsBlock;
+    [SerializeField] private GameObject _ControlsBlock;
+    [SerializeField] private GameObject _TimelessTooltip;
+
     #endregion VARIABLES
 
     #region METHODS
@@ -20,7 +26,7 @@ public class MainMenu : MonoBehaviour
     // Called before the first frame
     private void Start ()
     {
-        StartCoroutine(FadeBlackScreen(false, _fadeSpeed));
+        StartCoroutine(StartSequence());
     }
 
     #endregion UNITY
@@ -28,14 +34,60 @@ public class MainMenu : MonoBehaviour
     #region PUBLIC
 
     // Load the game scene
-    public void StartGame ()
+    public void StartGame (bool isTimeless)
     {
+        _TimelessTooltip.SetActive(false);
+        MusicPlayer.GetInstance()._isTimelessMode = isTimeless;     // <-- THIS IS CODING HERESY
         StartCoroutine(FadeBlackScreen(true, _fadeSpeed));
+    }
+
+    // Toggle Mentions block
+    public void ToggleMentionsBlock ()
+    {
+        _ControlsBlock.SetActive(false);
+        _MissionBlock.SetActive(false);
+        _MentionsBlock.SetActive(!_MentionsBlock.activeSelf);
+    }
+
+    // Toggle Mission block
+    public void ToggleMissionBlock ()
+    {
+        _ControlsBlock.SetActive(false);
+        _MissionBlock.SetActive(!_MissionBlock.activeSelf);
+        _MentionsBlock.SetActive(false);
+    }
+
+    // Toggle Controls block
+    public void ToggleControlsBlock ()
+    {
+        _ControlsBlock.SetActive(!_ControlsBlock.activeSelf);
+        _MissionBlock.SetActive(false);
+        _MentionsBlock.SetActive(false);
+    }
+
+    // Call MusicPlay to toggle music on or off
+    public void ToggleMusic ()
+    {
+        MusicPlayer.GetInstance().PauseMusic();
+    }
+
+    // Toggle the timeless mode tooltip on hover
+    public void ToggleTimelessTooltip ()
+    {
+        if (_UIButtons[_UIButtons.Length - 1] != null && _UIButtons[_UIButtons.Length - 1].interactable)
+            _TimelessTooltip.SetActive(!_TimelessTooltip.activeSelf);
     }
 
     #endregion PUBLIC
 
     #region PRIVATE
+
+    // Wait 1 second before the game starts (called from Start)
+    public IEnumerator StartSequence ()
+    {
+        yield return new WaitForSeconds(1);
+        yield return FadeBlackScreen(false, _fadeSpeed);
+    }
 
     // Fade to or from black screen
     public IEnumerator FadeBlackScreen (bool fadeIn, float speed)
@@ -58,7 +110,7 @@ public class MainMenu : MonoBehaviour
         currentColor.a = fadeIn ? 1 : 0;
         _BlackScreen.color = currentColor;
 
-        // First launch of game, arriving in main menu buttons need to be set to interactable
+        // Arriving in main menu -- buttons need to be set to interactable
         if (!fadeIn) {
             foreach (Button button in _UIButtons) {
                 button.interactable = true;

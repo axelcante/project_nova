@@ -24,20 +24,26 @@ public class GameManager : MonoBehaviour
     }
 
     [Header("Game loop flow")]
-    [SerializeField] private float _beforeFirstPhase;  // The time before the first (infinite) shoppint phase
+    [SerializeField] private float _beforeFirstPhase;   // The time before the first (infinite) shoppint phase
     [SerializeField] private float _timeBetweenPhases;  // The time between enemy phase and buy phase
     [SerializeField] private float _spawnPhaseLength;   // Time during which enemies spawn (10 SECONDS)
     [SerializeField] private float _shopPhaseLength;    // Time during which the player can buy new upgrades (10 SECONDS)
     private float _timeElapsed = 0;                     // Phases time measured since the game started
     private Phase _currentPhase = Phase.WAVE;           // Tracks which phase the game is currently in
     private Coroutine _PlayCoroutine;                   // Keeps track of the PlayGame coroutine, to stop it if game is over
-    private bool _isStart = true;                       // Marks the first game loop
+    private bool _isReady = false;                      // Marks the first game loop and any other shop loop if in timeless mode
+    private bool _isEndGame = false;                    // Marks when enemies start to be stronger (and eventually overrrun defenses)
+    private bool _isTimelessMode = false;               // This game mode means purchase phases are infinite (until player sets ready)
 
     [Header("Enemy Spawning")]
     [SerializeField] private BoxCollider2D _SpawningArea;               // A rectangular 2D box along the edges of which enemies spawn
     [SerializeField] private GameObject _EnemyHierarchyContainer;       // An empty GameObject holding all Enemy clones
     [SerializeField] private GameObject _EnemyPrefab;                   // The enemy prefab spawned
+    [SerializeField] private GameObject _EnemyStrongerPrefab;           // A stronger version of the enemy prefab
     [SerializeField] private int _enemiesToSpawnPerSecond;              // How many enemies to spawn per second of the Wave phase
+    [SerializeField] private int _maxEnemySpawnRate;                    // This limits the amount of enemies spawned to save framerate
+    [SerializeField] private float _chanceToSpawnStronger;              // One spawn cap is reached, have chance to spawn stronger enemies
+    [SerializeField] private float _strongChanceIncrease;               // Slow increase to stronger spawn chance over time
     [SerializeField] private int _fixedSpawnIncrease;                   // A fixed number of additional enemies per wave
     [SerializeField] [Range(0, 1f)] private float _spawnIncreaseRate;   // Percentage increase to enemy spawn rate
     private int _waveCounter = 0;                                       // How many waves of enemies have been spawned since game start
@@ -56,10 +62,15 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Shield _LargeShield;           // Reference to the Large Shield
     [SerializeField] private Station _Station;              // Refernce to the Station
 
+    // Originally, you received credits for destroying enemies
+    // But I thought I'd do it differently for once and not make it about money
+    // Now you receive energy - fighting the ongoing crisis!
+    // (I just like the word "credits", don't judge me please)
     [Header("Credits")]
     [SerializeField] private int _startingCreds;    // Amount of credits the player starts the game with
     [SerializeField] private int _credsPerKill;     // Amount of credits gained per enemy destroyed
     private float _currentCreds = 0;                // Current held credits by the player
+    private float _storedCreds = 0;                 // Current energy credits sent back to earth
 
     [Header("Animations")]
     [SerializeField] private CinemachineImpulseSource _Impulse; // Shakes the camera when the station explodes (and game ends)
@@ -85,18 +96,23 @@ public class GameManager : MonoBehaviour
     // Start is called just before the first frame in which this script is initialized, and after Awake
     private void Start ()
     {
-        // Initialize current credits
+        // Initialize current credits and display on UI
         UpdateCredits(_startingCreds);
 
+        if (MusicPlayer.GetInstance())
+            _isTimelessMode = MusicPlayer.GetInstance()._isTimelessMode;
+
         // Start the game!
-        _PlayCoroutine = StartCoroutine(PlayGameLoop());
+        // DEBUG REMOVE
+        _isTimelessMode = true;
+        _PlayCoroutine = StartCoroutine(PlayGameLoop(_isTimelessMode));
     }
 
     // Update is called once per frame
     private void Update ()
     {
         // If the station died on this frame, stop the Play coroutine from continuing
-        if (_currentPhase == Phase.DEAD)
+        if (_currentPhase == Phase.DEAD && _PlayCoroutine != null)
             StopCoroutine(_PlayCoroutine);
 
         // DEBUG: Spawn enemies on Spacebar press (REMOVE)
@@ -105,39 +121,57 @@ public class GameManager : MonoBehaviour
         //}
 
         // DEBUG KEY (REMOVE)
-        if (Input.GetKeyDown(KeyCode.Q)) {
-            //UIManager.GetInstance().ToggleShop();
-            bool couldUpgrade = true;
-            while (couldUpgrade) {
-                int i = 0;
-                couldUpgrade = AttemptUpgrade(Station.Element.DefenseOrb, i);
-                i++;
-            }
-            couldUpgrade = true;
-            while (couldUpgrade) {
-                int i = 0;
-                couldUpgrade = AttemptUpgrade(Station.Element.Complexity, i);
-                i++;
-            }
-            couldUpgrade = true;
-            while (couldUpgrade) {
-                int i = 0;
-                couldUpgrade = AttemptUpgrade(Station.Element.Pulsar, i);
-                i++;
-            }
-            couldUpgrade = true;
-            while (couldUpgrade) {
-                couldUpgrade = AttemptUpgrade(Station.Element.LargeShield);
-            }
-            couldUpgrade = true;
-            while (couldUpgrade) {
-                couldUpgrade = AttemptUpgrade(Station.Element.SmallShield);
-            }
-            couldUpgrade = true;
-            while (couldUpgrade) {
-                couldUpgrade = AttemptUpgrade(Station.Element.StationHQ);
-            }
-        }
+        //if (Input.GetKeyDown(KeyCode.Q)) {
+        //    //UIManager.GetInstance().ToggleShop();
+        //    int j = 0;
+        //    int i = 0;
+
+        //    while (i < 3) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.DefenseOrb, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    i = 0;
+        //    j = 0;
+        //    while (i < 4) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.Complexity, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    i = 0;
+        //    j = 0;
+        //    while (i < 2) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.Pulsar, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    j = 0;
+        //    while (j < 4) {
+        //        AttemptUpgrade(Station.Element.LargeShield);
+        //        j++;
+        //    }
+        //    j = 0;
+        //    while (j < 4) {
+        //        AttemptUpgrade(Station.Element.SmallShield);
+        //        j++;
+        //    }
+        //    j = 0;
+        //    while (j < 3) {
+        //        AttemptUpgrade(Station.Element.StationHQ);
+        //        j++;
+        //    }
+        //}
+        //if (Input.GetKeyDown(KeyCode.Q))
+        //    StartCoroutine(EndGame());
     }
 
     #endregion UNITY
@@ -226,15 +260,10 @@ public class GameManager : MonoBehaviour
     }
 
     // Declare ready to start the game
-    public void DeclareReady ()
-    {
-        _isStart = false;
-    }
+    public void DeclareReady () => _isReady = true;
 
     #endregion UI CALLBACKS
 
-    // Set the current game state to DEAD
-    public void SetGameOverState () => _currentPhase = Phase.DEAD;
 
     // Generates an impulse for our camera shake. Also hides and disables weapons
     public void GenerateImpulse ()
@@ -295,10 +324,8 @@ public class GameManager : MonoBehaviour
     // Start the end game coroutines
     public IEnumerator EndGame ()
     {
-        // Fade in and out end text
-        yield return UIManager.GetInstance().FadeEndText(true);
-        yield return new WaitForSeconds(_textFadeDelay);
-        yield return UIManager.GetInstance() .FadeEndText(false);
+        // Ask UIManager to start end game UI animations before reloading main menu
+        yield return UIManager.GetInstance().EndGameAnims();
 
         // Return to main menu
         SceneManager.LoadScene(0);
@@ -327,9 +354,21 @@ public class GameManager : MonoBehaviour
             _enemiesInPlay = false;
     }
 
+    // Store all current credits to send them back to Earth!
+    public void StoreCredits ()
+    {
+        _storedCreds += _currentCreds;
+        UpdateCredits(-_currentCreds);
+    }
+
     // GETTERS
     public float GetCurrentCreds () => _currentCreds;
+    public float GetStoredCreds () => _storedCreds;
     public Phase GetCurrentPhase () => _currentPhase;
+    public bool GetIsTimeless () => _isTimelessMode;
+    
+    // SETTERS
+    public void SetGameOverState () => _currentPhase = Phase.DEAD;
 
     #endregion PUBLIC
 
@@ -337,18 +376,22 @@ public class GameManager : MonoBehaviour
 
     // THE GAME LOOP
     // This coroutine is crucial as it manages the flow between phases
-    private IEnumerator PlayGameLoop ()
-    {
+    private IEnumerator PlayGameLoop (bool isTimless)
+    {   
+        // Start phase is always shopping
+        _currentPhase = Phase.SHOP;
+
         // Fade from black to transition from main menu fade
-        yield return UIManager.GetInstance().FadeBlackScreen(false, _blackScreenFadeSpeed);
+        yield return UIManager.GetInstance().FadeScreen(false, _blackScreenFadeSpeed);
 
         // On game start, give the players some time to get familiar with their surroundings
         yield return new WaitForSeconds(_beforeFirstPhase);
         
         // First phase is an infinite shop phase that players have to opt out of
         StartCoroutine(UIManager.GetInstance().ToggleShop());
-        while (_isStart)
+        while (!_isReady) {
             yield return null;
+        }
         StartCoroutine(UIManager.GetInstance().ToggleShop());
 
         // Pause the game before next phase
@@ -384,16 +427,28 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case Phase.SHOP:
-                    // Start time and display it
-                    StartCoroutine(PhaseTimer(_shopPhaseLength));
+                    // If in timeless mode, mark the phase as not ready to move until player decides
+                    if (isTimless) {
+                        _isReady = false;
+                    } else {
+                        // Start time and display it, but only in normal mode
+                        StartCoroutine(PhaseTimer(_shopPhaseLength));
+                    }
 
                     // Heal shields manually
                     _LargeShield.ManualShieldRecharge();
                     _SmallShield.ManualShieldRecharge();
 
-                    // Display the shop for _shopPhaseLength (10 SECONDS)
+                    // Display the shop for _shopPhaseLength (10 SECONDS) or infinitely in timeless mode
                     StartCoroutine(UIManager.GetInstance().ToggleShop());
-                    yield return new WaitForSeconds(_shopPhaseLength);
+                    if (isTimless) {
+                        // Wait for player to press the ready button
+                        while (!_isReady)
+                            yield return null;
+                    } else {
+                        yield return new WaitForSeconds(_shopPhaseLength);
+                    }
+                    // Hide the shop again
                     StartCoroutine(UIManager.GetInstance().ToggleShop());
 
                     // Pause the game before next phase
@@ -409,9 +464,22 @@ public class GameManager : MonoBehaviour
     // Increase the amount of enemies per wave over time
     private void IncreaseSpawnRate ()
     {
-        float newSpawnRate = _enemiesToSpawnPerSecond;
-        newSpawnRate += _fixedSpawnIncrease * (1 + UnityEngine.Random.Range(0, _spawnIncreaseRate));
-        _enemiesToSpawnPerSecond = Mathf.RoundToInt(newSpawnRate);
+        if (!_isEndGame) {
+            float newSpawnRate = _enemiesToSpawnPerSecond;
+            newSpawnRate += _fixedSpawnIncrease * (1 + UnityEngine.Random.Range(0, _spawnIncreaseRate));
+
+            // If enemies to spawn are more than 150/second, this will cause frames to drop exponentially
+            // Instead, limit the enemies spawned but make them stronger by marking end game
+            if (newSpawnRate > _maxEnemySpawnRate) {
+                _enemiesToSpawnPerSecond = _maxEnemySpawnRate;
+                _isEndGame = true;
+            } else {
+                _enemiesToSpawnPerSecond = Mathf.RoundToInt(newSpawnRate);
+            }
+        } else {
+            // Instead of spawning more enemies, increase their strength over time
+            _chanceToSpawnStronger *= 1 + _strongChanceIncrease;
+        }
     }
 
     // Select a random point along the edges of a 2D Capsule Collider, just outside of camera range
@@ -449,7 +517,21 @@ public class GameManager : MonoBehaviour
         }
 
         // Create an instance of the prefab at the random position and add it to the list of enemies
-        GameObject enemy = Instantiate(_EnemyPrefab, spawnPosition, Quaternion.identity, _EnemyHierarchyContainer.transform);
+        // If max spawn rate achieved, start spawning stronger enemies instead
+        bool isStronger;
+        if (_isEndGame) {
+            isStronger = _chanceToSpawnStronger >= UnityEngine.Random.Range(0f, 1f);
+        } else {
+            isStronger = false;
+        }
+
+        GameObject enemy = Instantiate(
+            isStronger ? _EnemyStrongerPrefab : _EnemyPrefab,
+            spawnPosition,
+            Quaternion.identity,
+            _EnemyHierarchyContainer.transform
+        );
+
         _Enemies.Add(enemy.GetComponent<Enemy>());
     }
 
@@ -492,8 +574,9 @@ public class GameManager : MonoBehaviour
     // Update credits
     private void UpdateCredits (float amount)
     {
+        float oldCreds = _currentCreds;
         _currentCreds += amount;
-        UIManager.GetInstance().UpdateCredits(_currentCreds);
+        UIManager.GetInstance().UpdateCredits(oldCreds, _currentCreds);
     }
 
     // Calculate time left per phase (to display)

@@ -116,7 +116,7 @@ public class Station : MonoBehaviour
                 // Set current properties based on this level
                 SetLevelProperties(_Level);
             } else {
-                Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
+                Debug.LogWarning("Either there are no levels specified for this weapon, or current level is below 0");
             }
         } else {
             Debug.LogWarning("This station is already max level");
@@ -136,6 +136,12 @@ public class Station : MonoBehaviour
 
         // Update health UI
         _HealthBar.UpdateHealth(_stationHQHealth);
+
+        // Disable repair button if at max health, or enable it on health lost
+        if (_stationHQHealth >= _currentMaxHealth)
+            _RepairButton.interactable = false;
+        else
+            _RepairButton.interactable = true;
     }
 
     // Return true if a specific Station Element (shields) is active or not
@@ -174,6 +180,9 @@ public class Station : MonoBehaviour
                 break;
         }
     }
+
+    // Manual station detonation (when exiting game)
+    public void ManualStationExplode () => StartCoroutine(StationExplode());
 
     // GETTERS
     public bool GetIsNova () => _isNova;
@@ -274,6 +283,13 @@ public class Station : MonoBehaviour
     {
         // Tell the GameManager.cs to stop the play loop
         GameManager.GetInstance().SetGameOverState();
+
+        // Hide Shop ui if it is open
+        StartCoroutine(UIManager.GetInstance().ToggleShop(true));
+
+        // Stop any music currently playing for SILENCE AND ISOLATION EFFECT WOOWZERS
+        if (MusicPlayer.GetInstance())
+            MusicPlayer.GetInstance().TrackedFadeMusic(false, true);
 
         // Deactivate both shields and stop them from recharging (way too late for that now!)
         if (_LargeShield.gameObject.activeSelf)

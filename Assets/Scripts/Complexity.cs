@@ -97,7 +97,7 @@ public class Complexity : MonoBehaviour
                 // Set current properties based on this level
                 SetLevelProperties(_Level);
             } else {
-                Debug.Log("Either there are no levels specified for this weapon, or current level is below 0");
+                Debug.LogWarning("Either there are no levels specified for this weapon, or current level is below 0");
             }
         } else {
             Debug.LogWarning("This weapon is already max level!");
