@@ -237,7 +237,7 @@ MonoBehaviour:
   minSpeed: 0.1
   maxSpeed: 1.1
   gravityFactor: 0.8
-  _largeShieldDistance: 3.5
+  _largeShieldDistance: 3.6
   _smallShieldDistance: 1.5
   _stationHQDistance: 0.3
   _collisionOffset: 0.3

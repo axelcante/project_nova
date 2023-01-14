@@ -40,6 +40,7 @@ public class Station : MonoBehaviour
     [Header("Health bar & repair")]
     [SerializeField] private HealthBar _HealthBar;      // Reference to the UI Health bar
     [SerializeField] private float _paidRepairAmount;   // Amount of health gained when purchasing a repair from the Shop
+    [SerializeField] private float _repairPriceIncrease;// The repair price icreases after each use
     private float _stationHQHealth;                     // Current station health
 
     [Header("UI Shop Elements")]
@@ -126,13 +127,25 @@ public class Station : MonoBehaviour
     // Increase current health (repair)
     public void RepairStation (float amount = -1)
     {
-        // By default, when this function is called it heals for the paid amount
-        float calcAmount = amount < 0 ? _paidRepairAmount : amount;
+        float healAmount = 0;
 
-        if (_stationHQHealth + calcAmount > _currentMaxHealth)
+        if (amount < 0) {
+            // By default, when this function is called it heals for the paid amount
+            healAmount = _paidRepairAmount;
+
+            // In which case we also increase the price for subsequent repairs
+            float prevPrice = _repairPrice;
+            _repairPrice += _repairPriceIncrease;
+            UpdateShopRepairUI(prevPrice, _repairPrice);
+        } else {
+            healAmount = amount;
+        }
+
+        if (_stationHQHealth + healAmount > _currentMaxHealth) {
             _stationHQHealth = _currentMaxHealth;
-        else
-            _stationHQHealth += calcAmount;
+        } else {
+            _stationHQHealth += healAmount;
+        }
 
         // Update health UI
         _HealthBar.UpdateHealth(_stationHQHealth);
@@ -194,7 +207,7 @@ public class Station : MonoBehaviour
 
     #region PRIVATE
 
-    // Update the repair price display (only done once)
+    // Update the repair price display (only done once on game start -- NOT OPTIMAL)
     private void InitializeShopRepairUI ()
     {
         float[] repPrices;
@@ -205,6 +218,13 @@ public class Station : MonoBehaviour
             _RepPriceDisplay.text = _repairPrice.ToString();
         } else
             Debug.LogWarning("Couldn't find a repair price");
+    }
+
+    // Update the repair price display (only done once)
+    private void UpdateShopRepairUI (float startPrice, float endPrice)
+    {
+        // Call UI to animate price update!
+        StartCoroutine(UIManager.GetInstance().AnimateCredits(startPrice, endPrice, 0.3f, _RepPriceDisplay));
     }
 
     // Update the station properties based on current upgrade level
@@ -284,7 +304,7 @@ public class Station : MonoBehaviour
         // Tell the GameManager.cs to stop the play loop
         GameManager.GetInstance().SetGameOverState();
 
-        // Hide Shop ui if it is open
+        // Hide shop UI if open
         StartCoroutine(UIManager.GetInstance().ToggleShop(true));
 
         // Stop any music currently playing for SILENCE AND ISOLATION EFFECT WOOWZERS

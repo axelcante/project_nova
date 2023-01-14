@@ -31,7 +31,7 @@ public class DefenseOrb : MonoBehaviour
     private Upgrades.DefenseOrbLevel _Level;    // Holds a reference to the current weapon level
     private float _currentRechargeSpeed;        // Time before laser can shoot again
     private int _currentLasersPerCharge;        // Number of lasers fired per charge
-    private float _nextUpgradePrice;            // Amount of credits required to purchase next upgrade
+    private float _nextUpgradePrice = 0;        // Amount of credits required to purchase next upgrade
 
     #endregion VARIABLES
 
@@ -130,8 +130,10 @@ public class DefenseOrb : MonoBehaviour
             // Update the price for the next upgrade
             float[] prices;
             if (Upgrades.GetInstance()._Prices.TryGetValue(Upgrades.Type.DEFENSEORB, out prices)) {
+                // Animate credits going up
+                float currentPrice = _nextUpgradePrice;
                 _nextUpgradePrice = prices[_levelNb + 1];
-                _PriceDisplay.text = _nextUpgradePrice.ToString();
+                StartCoroutine(UIManager.GetInstance().AnimateCredits(currentPrice, _nextUpgradePrice, 0.3f, _PriceDisplay));
             } else
                 Debug.LogWarning("Couldn't find a price for the given item's next upgrade");
         } else {

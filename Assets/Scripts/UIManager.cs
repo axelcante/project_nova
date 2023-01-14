@@ -334,9 +334,9 @@ public class UIManager : MonoBehaviour
     {
 
         // Fade to star screen and start theme music
-        if (MusicPlayer.GetInstance())
-            MusicPlayer.GetInstance().PlayNextSong(1);
         yield return FadeScreen(true, _screenFadeSpeed, _BlackScreen);
+        if (MusicPlayer.GetInstance())
+            MusicPlayer.GetInstance().PlayNextSong(0);
         yield return new WaitForSeconds(_timeBeforeFadeOut);
 
         // Get current stored credits
@@ -344,9 +344,11 @@ public class UIManager : MonoBehaviour
 
         // Add cursor flash effect at start and end of sentence
         // Type texts and fade them out, one after the other
+        // First one --> PN TERMINATED
         yield return CursorFlash(_TerminateTextTMP);
         yield return TypewriterEffect(_pnTermStory, _TerminateTextTMP);
-        yield return CursorFlash(_TerminateTextTMP);
+
+        // How many creds sent back to Earth (if any)
         if (sentCreds > 0) {
             // Add sent creds to result string (and animate it!)
             yield return AnimateCredits(0, sentCreds, 2f, _ResultTextTMP);
@@ -358,8 +360,11 @@ public class UIManager : MonoBehaviour
             // Add cursor flash effect at end of sentence
             StartCoroutine(CursorFlash(_ResultTextTMP));
             StartCoroutine(FadeText(_ResultTextTMP, false));
+        } else {
+            StartCoroutine(CursorFlash(_TerminateTextTMP));
         }
         yield return FadeText(_TerminateTextTMP, false);
+
         if (sentCreds > 0) {
             // Add cursor flash effect at start and end of sentence
             yield return CursorFlash(_FinalMessage1);
@@ -471,9 +476,8 @@ public class UIManager : MonoBehaviour
 
         float time = 0;
         float duration = _creditsAnimationSpeed * multiplier;
-        int creds = 0;
         while (time < duration) {
-            creds = Mathf.RoundToInt(Mathf.Lerp(curCreds, tarCreds, time / duration));
+            int creds = Mathf.RoundToInt(Mathf.Lerp(curCreds, tarCreds, time / duration));
             txt.text = creds.ToString();
             
             time += Time.deltaTime;

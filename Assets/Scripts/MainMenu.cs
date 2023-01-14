@@ -72,10 +72,10 @@ public class MainMenu : MonoBehaviour
     }
 
     // Toggle the timeless mode tooltip on hover
-    public void ToggleTimelessTooltip ()
+    public void ToggleTimelessTooltip (bool toggleOn)
     {
         if (_UIButtons[_UIButtons.Length - 1] != null && _UIButtons[_UIButtons.Length - 1].interactable)
-            _TimelessTooltip.SetActive(!_TimelessTooltip.activeSelf);
+            _TimelessTooltip.SetActive(toggleOn);
     }
 
     #endregion PUBLIC
@@ -117,6 +117,8 @@ public class MainMenu : MonoBehaviour
             }
         } else {
             // Play Button pressed, faded to black, now must load scene!
+            // But first, let's wait an extra second
+            yield return new WaitForSeconds(1);
             SceneManager.LoadScene(1);
         }
     }

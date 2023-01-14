@@ -34,7 +34,7 @@ public class Pulsar : MonoBehaviour
     private float _currentRechargeSpeed;    // Time before pulsar can shoot again
     //private float _currentRotationSpeed;  // REMOVED FOR BALANCING
     private float _currentBlastRadius;      // The radius of the OverlapCircleAll method used to detect colliders
-    private float _nextUpgradePrice;        // Amount of credits required to purchase next upgrade
+    private float _nextUpgradePrice = 0;    // Amount of credits required to purchase next upgrade
 
     #endregion VARIABLES
 
@@ -145,8 +145,10 @@ public class Pulsar : MonoBehaviour
             // Update the price for the next upgrade
             float[] prices;
             if (Upgrades.GetInstance()._Prices.TryGetValue(Upgrades.Type.PULSAR, out prices)) {
+                // Animate credits going up
+                float currentPrice = _nextUpgradePrice;
                 _nextUpgradePrice = prices[_levelNb + 1];
-                _PriceDisplay.text = _nextUpgradePrice.ToString();
+                StartCoroutine(UIManager.GetInstance().AnimateCredits(currentPrice, _nextUpgradePrice, 0.3f, _PriceDisplay));
             } else
                 Debug.LogWarning("Couldn't find a price for the given item's next upgrade");
         } else {

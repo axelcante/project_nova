@@ -103,8 +103,6 @@ public class GameManager : MonoBehaviour
             _isTimelessMode = MusicPlayer.GetInstance()._isTimelessMode;
 
         // Start the game!
-        // DEBUG REMOVE
-        _isTimelessMode = true;
         _PlayCoroutine = StartCoroutine(PlayGameLoop(_isTimelessMode));
     }
 
@@ -121,55 +119,55 @@ public class GameManager : MonoBehaviour
         //}
 
         // DEBUG KEY (REMOVE)
-        //if (Input.GetKeyDown(KeyCode.Q)) {
-        //    //UIManager.GetInstance().ToggleShop();
-        //    int j = 0;
-        //    int i = 0;
+        if (Input.GetKeyDown(KeyCode.Q)) {
+            //UIManager.GetInstance().ToggleShop();
+            int j = 0;
+            int i = 0;
 
-        //    while (i < 3) {
-        //        while (j < 4) {
-        //            AttemptUpgrade(Station.Element.DefenseOrb, i);
-        //            j++;
-        //        }
-        //        i++;
-        //        j = 0;
-        //    }
-        //    i = 0;
-        //    j = 0;
-        //    while (i < 4) {
-        //        while (j < 4) {
-        //            AttemptUpgrade(Station.Element.Complexity, i);
-        //            j++;
-        //        }
-        //        i++;
-        //        j = 0;
-        //    }
-        //    i = 0;
-        //    j = 0;
-        //    while (i < 2) {
-        //        while (j < 4) {
-        //            AttemptUpgrade(Station.Element.Pulsar, i);
-        //            j++;
-        //        }
-        //        i++;
-        //        j = 0;
-        //    }
-        //    j = 0;
-        //    while (j < 4) {
-        //        AttemptUpgrade(Station.Element.LargeShield);
-        //        j++;
-        //    }
-        //    j = 0;
-        //    while (j < 4) {
-        //        AttemptUpgrade(Station.Element.SmallShield);
-        //        j++;
-        //    }
-        //    j = 0;
-        //    while (j < 3) {
-        //        AttemptUpgrade(Station.Element.StationHQ);
-        //        j++;
-        //    }
-        //}
+            while (i < 3) {
+                while (j < 4) {
+                    AttemptUpgrade(Station.Element.DefenseOrb, i);
+                    j++;
+                }
+                i++;
+                j = 0;
+            }
+            i = 0;
+            j = 0;
+            while (i < 4) {
+                while (j < 4) {
+                    AttemptUpgrade(Station.Element.Complexity, i);
+                    j++;
+                }
+                i++;
+                j = 0;
+            }
+            i = 0;
+            j = 0;
+            while (i < 2) {
+                while (j < 4) {
+                    AttemptUpgrade(Station.Element.Pulsar, i);
+                    j++;
+                }
+                i++;
+                j = 0;
+            }
+            j = 0;
+            while (j < 4) {
+                AttemptUpgrade(Station.Element.LargeShield);
+                j++;
+            }
+            j = 0;
+            while (j < 4) {
+                AttemptUpgrade(Station.Element.SmallShield);
+                j++;
+            }
+            j = 0;
+            while (j < 3) {
+                AttemptUpgrade(Station.Element.StationHQ);
+                j++;
+            }
+        }
         //if (Input.GetKeyDown(KeyCode.Q))
         //    StartCoroutine(EndGame());
     }
@@ -263,7 +261,6 @@ public class GameManager : MonoBehaviour
     public void DeclareReady () => _isReady = true;
 
     #endregion UI CALLBACKS
-
 
     // Generates an impulse for our camera shake. Also hides and disables weapons
     public void GenerateImpulse ()

@@ -5931,8 +5931,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: -40, y: 0}
-  m_SizeDelta: {x: 80, y: 50}
+  m_AnchoredPosition: {x: -50, y: 0}
+  m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &710747580
 MonoBehaviour:
@@ -5954,7 +5954,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10000
+  m_text: 99999
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -5981,14 +5981,14 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
-  m_HorizontalAlignment: 1
+  m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
@@ -6590,8 +6590,8 @@ MonoBehaviour:
   _SmallShield: {fileID: 695951247}
   _LargeShield: {fileID: 1342694800}
   _Station: {fileID: 1327567826}
-  _startingCreds: 300
-  _credsPerKill: 10
+  _startingCreds: 20000
+  _credsPerKill: 1
   _Impulse: {fileID: 790507673}
   _blackScreenFadeSpeed: 3
   _textFadeDelay: 2
@@ -12117,6 +12117,7 @@ MonoBehaviour:
   _novaAnimationTime: 6.6
   _HealthBar: {fileID: 1491795182}
   _paidRepairAmount: 100
+  _repairPriceIncrease: 50
   _PriceDisplay: {fileID: 153686162}
   _CreditsDisplay: {fileID: 1208875474}
   _LevelDisplay: {fileID: 102648580}
@@ -15570,8 +15571,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 55, y: 0}
-  m_SizeDelta: {x: 110, y: 50}
+  m_AnchoredPosition: {x: 50, y: 0}
+  m_SizeDelta: {x: 100, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1731296547
 MonoBehaviour:
@@ -15620,8 +15621,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

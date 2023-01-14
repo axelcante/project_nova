@@ -76,9 +76,13 @@ public class MusicPlayer : MonoBehaviour
     public void PlayNextSong (int id = -1)
     {
         if (id < 0) {
-            _currentSong = (_currentSong + 1) % _Songs.Length;
             _AudioSource.clip = _Songs[_currentSong];
             _AudioSource.Play();
+            _currentSong += 1;
+
+            // Reset to 0 if last song is played
+            if (_currentSong == _Songs.Length - 1)
+                _currentSong = 0;
         } else if (id <= _Songs.Length) {
             // If manually setting a new song, check if one is playing; if so, fade it out
             if (_AudioSource.isPlaying)
