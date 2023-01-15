@@ -37,6 +37,7 @@ public class MusicPlayer : MonoBehaviour
     [SerializeField] private float _musicFadeSpeed;         // Speed at which music is faded out when paused or stopped
     private int _currentSong = 0;                           // Holds the array id of the currently played song
     private bool _isPaused = false;                         // Tracks if music was manually paused or not
+    private bool _isStopped = false;                        // Tracks if music was manually stopped or not
     private bool _isFading = false;                         // Tracks if the fading coroutine is currently in play (ha)
     private Coroutine FadeCoroutine;                        // Coroutine tracker
 
@@ -73,35 +74,32 @@ public class MusicPlayer : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (!_AudioSource.isPlaying && !_isPaused)
+        if (!_AudioSource.isPlaying && !_isPaused && !_isStopped)
             PlayNextSong();
     }
 
     // Plays next song when the previous one ends (or play manually set one)
     public void PlayNextSong (int id = -1)
     {
-        // Unless the game is manually paused, play the next (or desired) song
-        if (!_isPaused) {
-            if (id < 0) {
-                _AudioSource.clip = _Songs[_currentSong];
-                _AudioSource.volume = 0;
-                _AudioSource.Play();
-                StartCoroutine(FadeMusic(true));
-                _currentSong += 1;
+        if (id < 0) {
+            _AudioSource.clip = _Songs[_currentSong];
+            _AudioSource.volume = 0;
+            _AudioSource.Play();
+            StartCoroutine(FadeMusic(true));
+            _currentSong += 1;
 
-                // Reset to 0 if last song is played
-                if (_currentSong == _Songs.Length - 1)
-                    _currentSong = 0;
-            } else if (id <= _Songs.Length) {
-                // If manually setting a new song, check if one is playing; if so, fade it out
-                if (_AudioSource.isPlaying)
-                    StartCoroutine(FadeMusic(false, true));
-                _currentSong = id;
-                _AudioSource.clip = _Songs[id];
-                _AudioSource.Play();
-            } else {
-                Debug.LogWarning("Trying to play a song that does not exist.");
-            }
+            // Reset to 0 if last song is played
+            if (_currentSong == _Songs.Length - 1)
+                _currentSong = 0;
+        } else if (id <= _Songs.Length) {
+            // If manually setting a new song, check if one is playing; if so, fade it out
+            //if (_AudioSource.isPlaying)
+            //    StartCoroutine(FadeMusic(false, true));
+            _currentSong = id;
+            _AudioSource.clip = _Songs[id];
+            _AudioSource.Play();
+        } else {
+            Debug.LogWarning("Trying to play a song that does not exist.");
         }
     }
 
@@ -140,6 +138,7 @@ public class MusicPlayer : MonoBehaviour
         // If we're fading in, play before it is faded in for the effect to work
         if (fadeIn) {
             _isPaused = false;
+            _isStopped = false;
             _AudioSource.Play();
         }
 
@@ -154,14 +153,16 @@ public class MusicPlayer : MonoBehaviour
 
         // Stop or Pause the music (PLEASE DON'T STOP THE MUUUUUUSIC)
         if (!fadeIn) {
-            _isPaused = true;
             if (toStop) {
+                _isStopped = true;
                 _AudioSource.Stop();
                 // Set volume back to one so we don't need to fade it back in when stop/starting
                 _AudioSource.volume = 1;
             }
-            else
+            else {
+                _isPaused = true;
                 _AudioSource.Pause();
+            }
         }
 
         _isFading = false;
@@ -187,4 +188,10 @@ public class MusicPlayer : MonoBehaviour
             _MusicIconText.color = _CurrentTextColor;
         }
     }
+
+    public void DisableMusicButton () => _MusicButtonImage.gameObject.SetActive(false);
+    public void EnableMusicButton () => _MusicButtonImage.gameObject.SetActive(true);
+
+    // GETTERS
+    public bool GetIsPaused () => _isPaused;
 }

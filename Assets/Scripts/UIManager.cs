@@ -89,7 +89,7 @@ public class UIManager : MonoBehaviour
     {
         // Return to main menu if game is not already ending
         if (GameManager.GetInstance().GetCurrentPhase() != GameManager.Phase.DEAD &&
-            Input.GetKeyUp(KeyCode.Escape) &&
+            (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.P)) &&
             !_isFading
         )
             ToggleEscapeMenu();
@@ -342,8 +342,9 @@ public class UIManager : MonoBehaviour
 
         // Fade to star screen and start theme music
         yield return FadeScreen(true, _screenFadeSpeed, _BlackScreen);
-        if (MusicPlayer.GetInstance())
+        if (MusicPlayer.GetInstance() && !MusicPlayer.GetInstance().GetIsPaused()) {
             MusicPlayer.GetInstance().PlayNextSong(0);
+        }
         yield return new WaitForSeconds(_timeBeforeFadeOut);
 
         // Get current stored credits
@@ -352,11 +353,13 @@ public class UIManager : MonoBehaviour
         // Add cursor flash effect at start and end of sentence
         // Type texts and fade them out, one after the other
         // First one --> PN TERMINATED
+        _TerminateTextTMP.gameObject.SetActive(true);
         yield return CursorFlash(_TerminateTextTMP);
         yield return TypewriterEffect(_pnTermStory, _TerminateTextTMP);
 
         // How many creds sent back to Earth (if any)
         if (sentCreds > 0) {
+            _ResultTextTMP.gameObject.SetActive(true);
             // Add sent creds to result string (and animate it!)
             yield return AnimateCredits(0, sentCreds, 2f, _ResultTextTMP);
 
@@ -371,22 +374,29 @@ public class UIManager : MonoBehaviour
             StartCoroutine(CursorFlash(_TerminateTextTMP));
         }
         yield return FadeText(_TerminateTextTMP, false);
+        _ResultTextTMP.gameObject.SetActive(false);
+        _TerminateTextTMP.gameObject.SetActive(false);
 
         if (sentCreds > 0) {
+            _FinalMessage1.gameObject.SetActive(true);
             // Add cursor flash effect at start and end of sentence
             yield return CursorFlash(_FinalMessage1);
             yield return TypewriterEffect(_pnEnd1Story, _FinalMessage1);
             StartCoroutine(CursorFlash(_FinalMessage1));
             yield return FadeText(_FinalMessage1, false);
+            _FinalMessage1.gameObject.SetActive(false);
         }
         // Add cursor flash effect at start and end of sentence
+        _FinalMessage2.gameObject.SetActive(true);
         yield return CursorFlash(_FinalMessage2);
         yield return TypewriterEffect(_pnEnd2Story, _FinalMessage2);
         StartCoroutine(CursorFlash(_FinalMessage2));
         yield return FadeText(_FinalMessage2, false);
+        _FinalMessage2.gameObject.SetActive(false);
 
         // Fade final star screen then return control to GameManager to go to main menu
         yield return FadeScreen(true, _screenFadeSpeed, _StarScreenFinal);
+        MusicPlayer.GetInstance().EnableMusicButton();
     }
 
     // Writes text character by character for typing effect

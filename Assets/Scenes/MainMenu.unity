@@ -3373,7 +3373,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2c4dc2dcdce93c741a136cb1cb33fa65, type: 3}
   - {fileID: 8300000, guid: 5f28c5da14b30324497139c2215f7cd9, type: 3}
   - {fileID: 8300000, guid: e3b0fde7cc14f2f4f91b98280f7d58e0, type: 3}
-  _musicFadeSpeed: 1
+  _musicFadeSpeed: 0.5
   _CursorTexture: {fileID: 2800000, guid: e22898a23a8039643a9654b0cb0d1efc, type: 3}
 --- !u!82 &1131515960
 AudioSource:
@@ -4510,7 +4510,10 @@ MonoBehaviour:
 
     You have
     no control on the phases (which are each 10 seconds long), so try and plan ahead
-    as much as possible!'
+    as much as possible!
+
+
+    Oh and "P" pauses the game. Have fun!'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}

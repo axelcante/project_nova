@@ -727,7 +727,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &87089817
 RectTransform:
   m_ObjectHideFlags: 0
@@ -768,7 +768,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '[USER]: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
@@ -3497,7 +3497,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &496691833
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3538,7 +3538,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '[USER]: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -6594,6 +6594,7 @@ MonoBehaviour:
   _startingCreds: 250
   _credsPerKill: 1
   _storePerWave: 1000
+  _credsPerWave: 50
   _Impulse: {fileID: 790507673}
   _blackScreenFadeSpeed: 3
   _textFadeDelay: 2
@@ -11577,7 +11578,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1261938731
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14857,7 +14858,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1623314385
 RectTransform:
   m_ObjectHideFlags: 0
@@ -14898,7 +14899,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 
+  m_text: '[USER]: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
@@ -19148,10 +19149,10 @@ MonoBehaviour:
   _ResultTextTMP: {fileID: 1261938732}
   _FinalMessage1: {fileID: 1623314386}
   _FinalMessage2: {fileID: 87089818}
-  _pnTermStory: '[USER]: Project: Nova terminated.'
+  _pnTermStory: 'Project: NOVA terminated.'
   _pnCredsStory: energy credits sent back to Earth.
-  _pnEnd1Story: '[USER]: I pray that it is enough.'
-  _pnEnd2Story: '[USER]: Now, I can rest within infinity''s cold embrace.'
+  _pnEnd1Story: I pray that it is enough.
+  _pnEnd2Story: Now, I can rest within infinity's cold embrace.
   _timeAroundTypeEffect: 3
   _numberOfCursors: 6
   _timeBeforeFadeOut: 3

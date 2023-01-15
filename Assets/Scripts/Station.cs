@@ -310,8 +310,10 @@ public class Station : MonoBehaviour
         StartCoroutine(UIManager.GetInstance().ToggleShop(true));
 
         // Stop any music currently playing for SILENCE AND ISOLATION EFFECT WOOWZERS
-        if (MusicPlayer.GetInstance())
+        if (MusicPlayer.GetInstance() && !MusicPlayer.GetInstance().GetIsPaused()) {
             MusicPlayer.GetInstance().TrackedFadeMusic(false, true);
+        }
+        MusicPlayer.GetInstance().DisableMusicButton();
 
         // Deactivate both shields and stop them from recharging (way too late for that now!)
         if (_LargeShield.gameObject.activeSelf)

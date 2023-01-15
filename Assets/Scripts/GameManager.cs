@@ -72,6 +72,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int _startingCreds;    // Amount of credits the player starts the game with
     [SerializeField] private int _credsPerKill;     // Amount of credits gained per enemy destroyed
     [SerializeField] private int _storePerWave;     // How many stored credits you add every wave (automatically)
+    [SerializeField] private int _credsPerWave;     // A fixed amount of credits added per wave (for early game balancing)
     private float _currentCreds = 0;                // Current held credits by the player
     private float _storedCreds = 0;                 // Current energy credits sent back to earth
 
@@ -439,6 +440,9 @@ public class GameManager : MonoBehaviour
                 case Phase.SHOP:
                     // Every time you enter shop mode after the first one, store energy credits automatically
                     StoreCredits(_storePerWave);
+
+                    // You also gain a fixed amount of credits per turn (to help the early game)
+                    UpdateCredits(_credsPerWave);
 
                     // If in timeless mode, mark the phase as not ready to move until player decides
                     if (isTimless) {
