@@ -609,8 +609,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -300, y: 1000}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -202.1535, y: 997.5}
+  m_SizeDelta: {x: 304.3068, y: 105}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &266183888
 Animator:
@@ -1007,10 +1007,10 @@ RectTransform:
   m_Father: {fileID: 1315066183}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -300, y: -451.00003}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 0}
+  m_AnchoredPosition: {x: -210.50604, y: 629}
+  m_SizeDelta: {x: 321.0122, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &351812560
 Animator:
@@ -1191,15 +1191,15 @@ MonoBehaviour:
     In
     a last-ditch effort, the United Democracies of Earth have pooled their efforts
     to send you on a one-way trip to Object 3X9YYS, an unidentified star that scientists
-    believe could be a source of immense but highly unstable alien energy. Predictions
-    state it will detonate in a short amount of time - days at most.
+    believe could be a source of nigh-infinite but highly unstable alien energy.
+    Predictions state it will detonate in a short amount of time.
 
 
-    We need
-    you to give us a fighting chance by siphoning any energy you can before it eventually
-    super-novas. Unfortunately, previous unarmed and unmaned attempts have failed
+    We need you
+    to give us a fighting chance by siphoning any energy you can before it eventually
+    super-novas. Unfortunately, previous unarmed and unmanned attempts have failed
     - something about the energy source attracting high-density fusion material from
-    nearby sources destroyed our previous spacecrafts before they could get anything
+    nearby and destroying our previous spacecrafts before they could get anything
     done.
 
 
@@ -1323,8 +1323,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -300, y: 895}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -247.49689, y: 895}
+  m_SizeDelta: {x: 394.9939, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &394526968
 Animator:
@@ -1768,8 +1768,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -300, y: 429}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -226.21014, y: 429}
+  m_SizeDelta: {x: 352.4203, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!95 &524927896
 Animator:
@@ -2323,26 +2323,34 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'This game was done as a university project at Goldsmiths (MSc Computer
-    Games Programming). The theme was "10 seconds" - I''m sure you''ll quickly discover
-    how I''ve implemented it.
+  m_text: 'This game was done as a university project at Goldsmiths University of
+    London (MSc Computer Games Programming). The theme was "10 seconds" - I''m sure
+    you''ll quickly discover how I''ve implemented it.
 
 
-    It''s the third Unity project I''ve done - which
-    explains any bugs you run into.
+    I used some assets that
+    I did not make myself, namely the musical soundtrack and three of Kenney''s 2D
+    sprites. Feel free to go check out their work below!
 
 
-    I''ve use some assets that I did not make
-    myself, namely the musical soundtrack and some of Kenney''s 2D sprites. Feel
-    free to go check out their work:
+    Music:
+
+    - Intergalactic
+    Oceans Meditation - NaturesEye (Pixabay)
+
+    - Neural State Metaphysical (Theme
+    song) - Ambient Nature Atmosphere (Pixabay)
+
+    - Drone Space - Daddy_s_Music
+    (Pixabay)
+
+    - Cinematic Violin - JoshuaHudesMusic (Pixabay)
+
+
+    2D Sprites:
 
     -
-
-    -
-
-    -
-
-    -'
+    Kenney Game Assets - https://kenney.nl/assets'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
   m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
@@ -2534,8 +2542,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -300, y: 529}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -152.63342, y: 529}
+  m_SizeDelta: {x: 205.2668, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &798771418
 MonoBehaviour:
@@ -3001,18 +3009,21 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: In timeless mode, upgrade phases are infinite until the player marks them
-    as over. Enemy phases are unchanged (they last 10 seconds).
+  m_text: 'In timeless mode, upgrade phases last until you mark them as finished,
+    instead of 10 seconds.
+
+
+    Recommended for first game.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
-  m_sharedMaterial: {fileID: 8401431347317108539, guid: f6f1e3741f0b6c54d905b9dae1b00384, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
+  m_sharedMaterial: {fileID: 8401431347317108539, guid: 76acd39add7ad7c42a1306cf18049e9c, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4279632127
-  m_fontColor: {r: 1, g: 0, b: 0.08627451, a: 1}
+    rgba: 4290903808
+  m_fontColor: {r: 0, g: 1, b: 0.75686276, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3096,8 +3107,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 50, y: -129.99998}
-  m_SizeDelta: {x: 400, y: 160}
+  m_AnchoredPosition: {x: -23.79, y: -140}
+  m_SizeDelta: {x: 400, y: 180}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1049366355
 GameObject:
@@ -3362,7 +3373,8 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 2c4dc2dcdce93c741a136cb1cb33fa65, type: 3}
   - {fileID: 8300000, guid: 5f28c5da14b30324497139c2215f7cd9, type: 3}
   - {fileID: 8300000, guid: e3b0fde7cc14f2f4f91b98280f7d58e0, type: 3}
-  _musicFadeSpeed: 0.5
+  _musicFadeSpeed: 1
+  _CursorTexture: {fileID: 2800000, guid: e22898a23a8039643a9654b0cb0d1efc, type: 3}
 --- !u!82 &1131515960
 AudioSource:
   m_ObjectHideFlags: 0

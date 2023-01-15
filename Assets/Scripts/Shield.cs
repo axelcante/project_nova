@@ -143,7 +143,7 @@ public class Shield : MonoBehaviour
 
         // I know I should have used StopAllCoroutines everywhere, I just don't yet understand the scope it reaches
         StopAllCoroutines();
-        StartCoroutine(Toggle(false));
+        StartCoroutine(Toggle(false, true));
     }
 
     // Manually recharge the shield (if it's not in the process already) when shop phase is up
@@ -211,8 +211,7 @@ public class Shield : MonoBehaviour
             // Max level; can't upgrade anymore
             _LevelDisplay.text = "Max";
             _BuyButton.interactable = false;
-            _PriceDisplay.gameObject.SetActive(false);
-            _CreditsDisplay.gameObject.SetActive(false);
+            StartCoroutine(UIManager.GetInstance().AnimateCredits(_nextUpgradePrice, 0, 0.3f, _PriceDisplay, true));
         }
 
     }
@@ -260,7 +259,7 @@ public class Shield : MonoBehaviour
     }
 
     // Call this coroutine to either fade in or fade out a shield (when it is activated or destroyed)
-    private IEnumerator Toggle (bool toActivate)
+    private IEnumerator Toggle (bool toActivate, bool removeFromPlay = false)
     {
         float time = 0;
         Color currentColor = _Sprite.color;
@@ -273,6 +272,12 @@ public class Shield : MonoBehaviour
         }
         currentColor.a = toActivate ? _shieldDeadAlpha / 255 : 0;
         _Sprite.color = currentColor;
+
+        // Deactivate gameobject (at end of game)
+        if (removeFromPlay) {
+            this.gameObject.SetActive(false);
+            _HealthBar.UpdateHealth(0);
+        }
     }
 
     // Fade in sprite when weapon first purchased

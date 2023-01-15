@@ -31,7 +31,6 @@ public class MusicPlayer : MonoBehaviour
     private Color _CurrentTextColor;                            // Tracks the current icon text color
     private bool _isHighlighted;                                // Tracks if button is currently highligted
 
-
     [Header("Audio")]
     [SerializeField] private AudioSource _AudioSource;      // A reference to the component playing the music
     [SerializeField] private AudioClip[] _Songs;            // A collection of songs to play on a loop
@@ -41,16 +40,22 @@ public class MusicPlayer : MonoBehaviour
     private bool _isFading = false;                         // Tracks if the fading coroutine is currently in play (ha)
     private Coroutine FadeCoroutine;                        // Coroutine tracker
 
+    [Header("Cursor")]
+    [SerializeField] Texture2D _CursorTexture;    // I should really have another script that persists between scenes...
+
     // Called when this script is initialized
     private void Awake ()
     {
         // Create singleton instance reference for other scripts to call
         if (_instance != null) {
             // This happens when you load back into the main menu, as we already have a music player
-            Destroy(this);
+            Destroy(gameObject);
         } else {
             _instance = this;
         }
+
+        // Update the default cursor
+        Cursor.SetCursor(_CursorTexture, Vector2.zero, CursorMode.ForceSoftware);
 
         // We want this gameobject (and script) to persist between scenes
         DontDestroyOnLoad(gameObject);
@@ -75,23 +80,28 @@ public class MusicPlayer : MonoBehaviour
     // Plays next song when the previous one ends (or play manually set one)
     public void PlayNextSong (int id = -1)
     {
-        if (id < 0) {
-            _AudioSource.clip = _Songs[_currentSong];
-            _AudioSource.Play();
-            _currentSong += 1;
+        // Unless the game is manually paused, play the next (or desired) song
+        if (!_isPaused) {
+            if (id < 0) {
+                _AudioSource.clip = _Songs[_currentSong];
+                _AudioSource.volume = 0;
+                _AudioSource.Play();
+                StartCoroutine(FadeMusic(true));
+                _currentSong += 1;
 
-            // Reset to 0 if last song is played
-            if (_currentSong == _Songs.Length - 1)
-                _currentSong = 0;
-        } else if (id <= _Songs.Length) {
-            // If manually setting a new song, check if one is playing; if so, fade it out
-            if (_AudioSource.isPlaying)
-                StartCoroutine(FadeMusic(false, true));
-            _currentSong = id;
-            _AudioSource.clip = _Songs[id];
-            _AudioSource.Play();
-        } else {
-            Debug.LogWarning("Trying to play a song that does not exist.");
+                // Reset to 0 if last song is played
+                if (_currentSong == _Songs.Length - 1)
+                    _currentSong = 0;
+            } else if (id <= _Songs.Length) {
+                // If manually setting a new song, check if one is playing; if so, fade it out
+                if (_AudioSource.isPlaying)
+                    StartCoroutine(FadeMusic(false, true));
+                _currentSong = id;
+                _AudioSource.clip = _Songs[id];
+                _AudioSource.Play();
+            } else {
+                Debug.LogWarning("Trying to play a song that does not exist.");
+            }
         }
     }
 

@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     private Phase _currentPhase = Phase.WAVE;           // Tracks which phase the game is currently in
     private Coroutine _PlayCoroutine;                   // Keeps track of the PlayGame coroutine, to stop it if game is over
     private bool _isReady = false;                      // Marks the first game loop and any other shop loop if in timeless mode
+    private bool _isMidGame = false;                    // Marks when enemies start to be stronger
     private bool _isEndGame = false;                    // Marks when enemies start to be stronger (and eventually overrrun defenses)
     private bool _isTimelessMode = false;               // This game mode means purchase phases are infinite (until player sets ready)
 
@@ -42,6 +43,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject _EnemyStrongerPrefab;           // A stronger version of the enemy prefab
     [SerializeField] private int _enemiesToSpawnPerSecond;              // How many enemies to spawn per second of the Wave phase
     [SerializeField] private int _maxEnemySpawnRate;                    // This limits the amount of enemies spawned to save framerate
+    [SerializeField] private int _midGameWave;                          // Wave at which game enters Mid Game (stonger enemies chance)
     [SerializeField] private float _chanceToSpawnStronger;              // One spawn cap is reached, have chance to spawn stronger enemies
     [SerializeField] private float _strongChanceIncrease;               // Slow increase to stronger spawn chance over time
     [SerializeField] private int _fixedSpawnIncrease;                   // A fixed number of additional enemies per wave
@@ -69,6 +71,7 @@ public class GameManager : MonoBehaviour
     [Header("Credits")]
     [SerializeField] private int _startingCreds;    // Amount of credits the player starts the game with
     [SerializeField] private int _credsPerKill;     // Amount of credits gained per enemy destroyed
+    [SerializeField] private int _storePerWave;     // How many stored credits you add every wave (automatically)
     private float _currentCreds = 0;                // Current held credits by the player
     private float _storedCreds = 0;                 // Current energy credits sent back to earth
 
@@ -119,55 +122,55 @@ public class GameManager : MonoBehaviour
         //}
 
         // DEBUG KEY (REMOVE)
-        if (Input.GetKeyDown(KeyCode.Q)) {
-            //UIManager.GetInstance().ToggleShop();
-            int j = 0;
-            int i = 0;
+        //if (Input.GetKeyDown(KeyCode.Q)) {
+        //    //UIManager.GetInstance().ToggleShop();
+        //    int j = 0;
+        //    int i = 0;
 
-            while (i < 3) {
-                while (j < 4) {
-                    AttemptUpgrade(Station.Element.DefenseOrb, i);
-                    j++;
-                }
-                i++;
-                j = 0;
-            }
-            i = 0;
-            j = 0;
-            while (i < 4) {
-                while (j < 4) {
-                    AttemptUpgrade(Station.Element.Complexity, i);
-                    j++;
-                }
-                i++;
-                j = 0;
-            }
-            i = 0;
-            j = 0;
-            while (i < 2) {
-                while (j < 4) {
-                    AttemptUpgrade(Station.Element.Pulsar, i);
-                    j++;
-                }
-                i++;
-                j = 0;
-            }
-            j = 0;
-            while (j < 4) {
-                AttemptUpgrade(Station.Element.LargeShield);
-                j++;
-            }
-            j = 0;
-            while (j < 4) {
-                AttemptUpgrade(Station.Element.SmallShield);
-                j++;
-            }
-            j = 0;
-            while (j < 3) {
-                AttemptUpgrade(Station.Element.StationHQ);
-                j++;
-            }
-        }
+        //    while (i < 3) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.DefenseOrb, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    i = 0;
+        //    j = 0;
+        //    while (i < 4) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.Complexity, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    i = 0;
+        //    j = 0;
+        //    while (i < 2) {
+        //        while (j < 4) {
+        //            AttemptUpgrade(Station.Element.Pulsar, i);
+        //            j++;
+        //        }
+        //        i++;
+        //        j = 0;
+        //    }
+        //    j = 0;
+        //    while (j < 4) {
+        //        AttemptUpgrade(Station.Element.LargeShield);
+        //        j++;
+        //    }
+        //    j = 0;
+        //    while (j < 4) {
+        //        AttemptUpgrade(Station.Element.SmallShield);
+        //        j++;
+        //    }
+        //    j = 0;
+        //    while (j < 3) {
+        //        AttemptUpgrade(Station.Element.StationHQ);
+        //        j++;
+        //    }
+        //}
         //if (Input.GetKeyDown(KeyCode.Q))
         //    StartCoroutine(EndGame());
     }
@@ -342,20 +345,30 @@ public class GameManager : MonoBehaviour
     {
         _Enemies.Remove(enemy);
 
-        // Increase credits! $$$$
-        UpdateCredits(_credsPerKill);
-
         // Check if there are more enemies in play
-        // COULD BE PERFORMANCE ISSUE HERE
-        if (_Enemies.Count == 0)
+        // Only animate credits if this was last enemy in play
+        if (_Enemies.Count == 0) {
             _enemiesInPlay = false;
+            // Increase credits! $$$$
+            UpdateCredits(_credsPerKill);
+        } else
+            UpdateCredits(_credsPerKill, false);
     }
 
     // Store all current credits to send them back to Earth!
-    public void StoreCredits ()
+    public void StoreCredits (int amount = -1)
     {
-        _storedCreds += _currentCreds;
-        UpdateCredits(-_currentCreds);
+        float prev = _storedCreds;
+
+        if (amount > 0) {
+            _storedCreds += _storePerWave;
+        } else {
+            _storedCreds += _currentCreds;
+            UpdateCredits(-_currentCreds);
+        }
+
+        // Update the UI display and animate it!
+        UIManager.GetInstance().UpdateStoredDisplay(prev, _storedCreds);
     }
 
     // GETTERS
@@ -424,6 +437,9 @@ public class GameManager : MonoBehaviour
                     break;
 
                 case Phase.SHOP:
+                    // Every time you enter shop mode after the first one, store energy credits automatically
+                    StoreCredits(_storePerWave);
+
                     // If in timeless mode, mark the phase as not ready to move until player decides
                     if (isTimless) {
                         _isReady = false;
@@ -516,7 +532,7 @@ public class GameManager : MonoBehaviour
         // Create an instance of the prefab at the random position and add it to the list of enemies
         // If max spawn rate achieved, start spawning stronger enemies instead
         bool isStronger;
-        if (_isEndGame) {
+        if (_isMidGame || _isEndGame) {
             isStronger = _chanceToSpawnStronger >= UnityEngine.Random.Range(0f, 1f);
         } else {
             isStronger = false;
@@ -539,6 +555,10 @@ public class GameManager : MonoBehaviour
         _waveCounter++;
         string txt = "Wave " + _waveCounter;
         UIManager.GetInstance().UpdateWaveCounter(txt);
+
+        // If we've reached the mid game point, mark it
+        if (_waveCounter == _midGameWave)
+            _isMidGame = true;
 
         int spawned = 0;
         int loadCount = 0;
@@ -565,15 +585,15 @@ public class GameManager : MonoBehaviour
             // Reset amount of enemies spawned for next loop
             spawned = 0;
         }
-        
     }
 
     // Update credits
-    private void UpdateCredits (float amount)
+    private void UpdateCredits (float amount, bool animate = true)
     {
         float oldCreds = _currentCreds;
         _currentCreds += amount;
-        UIManager.GetInstance().UpdateCredits(oldCreds, _currentCreds);
+        if (animate)
+            UIManager.GetInstance().UpdateCredits(oldCreds, _currentCreds);
     }
 
     // Calculate time left per phase (to display)

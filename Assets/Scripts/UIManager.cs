@@ -65,6 +65,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text _Seconds;             // Amount of phase seconds since start of game
     [SerializeField] private TMP_Text _Miliseconds;         // Amount of phase miliseconds since start of game
     [SerializeField] private TMP_Text _WaveDisplay;         // Number of the current wave
+    [SerializeField] private TMP_Text _StoredCredsDisplay;  // Number of currently stored energy credits
 
     private bool _isShopDisplayed = false;
 
@@ -120,6 +121,12 @@ public class UIManager : MonoBehaviour
 
     // Update wave number display
     public void UpdateWaveCounter (string wave) => _WaveDisplay.text = wave;
+
+    // Update the energy stored display
+    public void UpdateStoredDisplay (float previous, float current)
+    {
+        StartCoroutine(AnimateCredits(previous, current, 1, _StoredCredsDisplay));
+    }
 
     // This region contains all functions called by UI elements (such as buttons)
     #region CALLBACKS
@@ -374,7 +381,7 @@ public class UIManager : MonoBehaviour
         }
         // Add cursor flash effect at start and end of sentence
         yield return CursorFlash(_FinalMessage2);
-        yield return TypewriterEffect(_pnEnd2Story, _FinalMessage2, true);
+        yield return TypewriterEffect(_pnEnd2Story, _FinalMessage2);
         StartCoroutine(CursorFlash(_FinalMessage2));
         yield return FadeText(_FinalMessage2, false);
 
@@ -383,21 +390,13 @@ public class UIManager : MonoBehaviour
     }
 
     // Writes text character by character for typing effect
-    public IEnumerator TypewriterEffect (string sentence, TMP_Text displayText, bool specialEffect = false)
+    public IEnumerator TypewriterEffect (string sentence, TMP_Text displayText)
     {
-        // The special effect is to add a dramatic pause after the "..." of the last ending message
-        // This is horrdendous coding, but it's the end of the project and I don't think I will be coming back to this
-        // And if I do, I can easily find it and remove it thanks to these AWESOME COMMENTS
         displayText.text += '|';
 
         int i = 0;
         foreach (char c in sentence) {
             i++;
-            if (specialEffect && i == 13) {
-                // Remove '|'
-                displayText.text = displayText.text.Substring(0, displayText.text.Length - 1);
-                yield return CursorFlash(displayText);
-            }
             // Remove the last char in the string and replace it with char
             displayText.text = displayText.text.Substring(0, displayText.text.Length - 1) + c;
             displayText.text += '|';
@@ -469,7 +468,7 @@ public class UIManager : MonoBehaviour
     }
 
     // Animate credits being updated (when storing or end game screen)
-    public IEnumerator AnimateCredits (float curCreds, float tarCreds, float multiplier = 1, TMP_Text txt = null)
+    public IEnumerator AnimateCredits (float curCreds, float tarCreds, float multiplier = 1, TMP_Text txt = null, bool toZero = false)
     {
         if (!txt)
             txt = _CreditAmountText;
@@ -483,7 +482,10 @@ public class UIManager : MonoBehaviour
             time += Time.deltaTime;
             yield return null;
         }
-        txt.text = tarCreds.ToString();
+        if (toZero)
+            txt.text = "--";
+        else
+            txt.text = tarCreds.ToString();
     }
 
     #endregion ANIMATIONS

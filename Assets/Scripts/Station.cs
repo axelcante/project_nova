@@ -265,8 +265,7 @@ public class Station : MonoBehaviour
             // Max level; can't upgrade anymore
             _LevelDisplay.text = "Max";
             _BuyButton.interactable = false;
-            _PriceDisplay.gameObject.SetActive(false);
-            _CreditsDisplay.gameObject.SetActive(false);
+            StartCoroutine(UIManager.GetInstance().AnimateCredits(_nextUpgradePrice, 0, 0.3f, _PriceDisplay, true));
         }
 
     }
@@ -301,6 +300,9 @@ public class Station : MonoBehaviour
     // NOW I AM BECOME DEATH, THE DESTROYER OF WORLDS
     private IEnumerator StationExplode ()
     {
+        // Set health to 0 (if it isn't already)
+        _HealthBar.UpdateHealth(0);
+
         // Tell the GameManager.cs to stop the play loop
         GameManager.GetInstance().SetGameOverState();
 

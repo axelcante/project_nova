@@ -155,8 +155,7 @@ public class Pulsar : MonoBehaviour
             // Max level; can't upgrade anymore
             _LevelDisplay.text = "Max";
             _BuyButton.interactable = false;
-            _PriceDisplay.gameObject.SetActive(false);
-            _CreditsDisplay.gameObject.SetActive(false);
+            StartCoroutine(UIManager.GetInstance().AnimateCredits(_nextUpgradePrice, 0, 0.3f, _PriceDisplay, true));
         }
 
     }
